@@ -1,0 +1,14 @@
+syntax = "proto3";
+package lelang.lelang.v1;
+
+import "amino/amino.proto";
+import "gogoproto/gogo.proto";
+
+option go_package = "lelang/x/lelang/types";
+
+// Params defines the parameters for the module.
+message Params {
+  option (amino.name) = "lelang/x/lelang/Params";
+  option (gogoproto.equal) = true;
+  
+}

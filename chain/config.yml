@@ -1,0 +1,27 @@
+version: 1
+validation: sovereign
+default_denom: ulct
+accounts: 
+- name: alice
+  coins:
+  - 20000token
+  - 200000000ulct
+- name: bob
+  coins:
+  - 10000token
+  - 100000000ulct
+client:
+  openapi:
+    path: docs/static/openapi.json
+faucet:
+  name: bob
+  coins:
+  - 5token
+  - 100000ulct
+validators:
+- name: alice
+  bonded: 100000000ulct
+- name: validator1
+  bonded: 200000000ulct
+- name: validator2
+  bonded: 100000000ulct

@@ -1,0 +1,30 @@
+[package]
+name = "lelang-contract"
+version = "0.1.0"
+authors = ["Revan <revanmuhammadsepriana@gmail.com>"]
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+cosmwasm-std = "1.5.0"
+cosmwasm-schema = "1.5.0"
+cw-storage-plus = "1.2.0"
+cw721 = "0.18.0"
+thiserror = "1.0"
+serde = { version = "1.0", features = ["derive"] }
+serde-json-wasm = "1.0.1"
+schemars = "0.8"
+
+ark-ff = { version = "0.4.0", default-features = false }
+ark-ec = { version = "0.4.0", default-features = false }
+ark-bn254 = { version = "0.4.0", default-features = false }
+ark-groth16 = { version = "0.4.0", default-features = false }
+ark-serialize = { version = "0.4.0", default-features = false }
+light-poseidon = "0.2.0"
+hex = "0.4.3"
+
+
+[dev-dependencies]
+cw-multi-test = "0.18.0"

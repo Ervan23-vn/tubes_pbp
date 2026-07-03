@@ -1,0 +1,19 @@
+{
+  "name": "zkp-circuits",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "npx circom2 circuit.circom --r1cs --wasm --sym -o build -l node_modules/circomlib/circuits",
+    "setup": "npm run build && npx snarkjs powersoftau new bn128 12 pot12_0000.ptau -v && npx snarkjs powersoftau contribute pot12_0000.ptau pot12_final.ptau --name=\"First contribution\" -v && npx snarkjs groth16 setup build/circuit.r1cs pot12_final.ptau circuit_0000.zkey -v && npx snarkjs zkey contribute circuit_0000.zkey circuit_final.zkey --name=\"1st Contributor\" -v && npx snarkjs zkey export verificationkey circuit_final.zkey verification_key.json",
+    "prove": "node generate-proof.js",
+    "verify": "node verify-proof.js"
+  },
+  "dependencies": {
+    "circomlib": "github:iden3/circomlib",
+    "snarkjs": "^0.7.1"
+  },
+  "devDependencies": {
+    "circom": "^0.5.46",
+    "circom2": "^0.2.22"
+  }
+}

@@ -1,0 +1,41 @@
+# Binaries and executable files
+lelangd
+node1
+build/
+bin/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Cosmos SDK localnet state and logs (keep config, ignore dynamic database files)
+localnet/*/data/
+localnet/*.log
+*.log
+
+# Node.js dependencies and build folders
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+.next/
+**/.next/
+out/
+.nuxt/
+.cache/
+
+# Rust Cargo build target folders
+target/
+**/target/
+
+# Zero-Knowledge Proof (ZKP) large keys and generated files
+*.ptau
+*.zkey
+# Uncomment the line below if you also want to ignore compiled WASM files
+# *.wasm
+
+# System files & Windows Zone Identifiers
+.DS_Store
+Thumbs.db
+*Zone.Identifier
+*:Zone.Identifier

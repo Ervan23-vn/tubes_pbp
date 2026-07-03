@@ -1,0 +1,9 @@
+{
+  "proofGenerationTimeMs": 1247.165822,
+  "generatedAt": "2026-06-26T18:19:28.413Z",
+  "input": {
+    "harga_dasar": "100",
+    "nominal_bid": "150",
+    "salt": "123456"
+  }
+}

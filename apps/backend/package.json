@@ -1,0 +1,36 @@
+{
+  "name": "lelang-backend",
+  "version": "1.0.0",
+  "description": "Lelang Blockchain Backend API - Off-chain layer with PostgreSQL",
+  "main": "src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "migrate": "node src/db/migrate.js",
+    "seed": "node src/db/seed.js",
+    "test": "jest --detectOpenHandles",
+    "test:watch": "jest --watch"
+  },
+  "dependencies": {
+    "@cosmjs/proto-signing": "0.31.0",
+    "@cosmjs/stargate": "0.31.0",
+    "axios": "1.7.0",
+    "bcryptjs": "2.4.3",
+    "better-sqlite3": "9.0.0",
+    "body-parser": "1.20.2",
+    "cors": "2.8.5",
+    "dotenv": "16.3.1",
+    "express": "4.18.2",
+    "jsonwebtoken": "9.0.2",
+    "multer": "1.4.4",
+    "pg": "^8.22.0",
+    "sharp": "0.33.5",
+    "uuid": "9.0.1"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "nodemon": "^3.0.2",
+    "supertest": "^6.3.3"
+  }
+}
