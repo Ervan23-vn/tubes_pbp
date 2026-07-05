@@ -76,10 +76,10 @@ export default function RevealBid() {
     setRevealStatus(null)
   }, [selectedBid])
 
-  // Parse key file — supports both ATOM and ETH labels
+  // Parse key file — supports both STAKE and ETH labels
   const parseAndApplyKeyFile = (text) => {
     try {
-      const bidMatch = text.match(/NOMINAL PENAWARAN:\s*([\d.]+)\s*(ATOM|ETH)/i)
+      const bidMatch = text.match(/NOMINAL PENAWARAN:\s*([\d.]+)\s*(STAKE|ETH)/i)
       const saltMatch = text.match(/SECRET SALT\s*:\s*(\S+)/i)
 
       if (bidMatch && saltMatch) {
@@ -346,7 +346,7 @@ export default function RevealBid() {
               {inputMode === 'manual' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="flex flex-col gap-2">
-                    <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Nominal ATOM Asli</label>
+                    <label className="text-[10px] text-gray-500 font-semibold uppercase tracking-wider">Nominal STAKE Asli</label>
                     <div className="relative">
                       <input
                         type="number"
@@ -356,7 +356,7 @@ export default function RevealBid() {
                         onChange={(e) => setManualAmount(e.target.value)}
                         className="w-full bg-gray-50 border border-gray-200 focus:border-primary text-gray-800 font-mono text-xs p-3 rounded-lg outline-none transition-colors"
                       />
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">ATOM</span>
+                      <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-gray-400">STAKE</span>
                     </div>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -424,7 +424,7 @@ export default function RevealBid() {
                 </div>
                 <h3 className="text-base text-green-700 font-bold">Verifikasi Sukses!</h3>
                 <p className="text-xs text-gray-600 leading-relaxed">
-                  Penawaran sebesar <strong className="text-gray-800">{parseFloat(manualAmount).toFixed(4)} ATOM</strong> pada aset <strong className="text-gray-800">"{selectedBid.assetName}"</strong> telah berhasil didekripsi, dicocokkan dengan hash, dan terverifikasi secara penuh.
+                  Penawaran sebesar <strong className="text-gray-800">{parseFloat(manualAmount).toFixed(4)} STAKE</strong> pada aset <strong className="text-gray-800">"{selectedBid.assetName}"</strong> telah berhasil didekripsi, dicocokkan dengan hash, dan terverifikasi secara penuh.
                 </p>
               </div>
 
@@ -435,7 +435,7 @@ export default function RevealBid() {
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Nilai Penawaran Terungkap:</span>
-                  <span className="text-secondary font-bold">{parseFloat(manualAmount).toFixed(4)} ATOM</span>
+                  <span className="text-secondary font-bold">{parseFloat(manualAmount).toFixed(4)} STAKE</span>
                 </div>
                 <div className="flex justify-between">
                   <span className="text-gray-400">Secret Salt:</span>
@@ -488,7 +488,7 @@ export default function RevealBid() {
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <p className="text-sm text-green-600 font-bold">{bid.amount ? `${bid.amount.toFixed(4)} ATOM` : 'Terungkap'}</p>
+                    <p className="text-sm text-green-600 font-bold">{bid.amount ? `${bid.amount.toFixed(4)} STAKE` : 'Terungkap'}</p>
                     <span className="px-2 py-0.5 rounded bg-green-100 text-green-700 border border-green-200 text-[9px] uppercase font-bold tracking-wider">
                       Terbuka
                     </span>

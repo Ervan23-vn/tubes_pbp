@@ -96,7 +96,7 @@ export default function History() {
     const updated = [...refundedBids, timestamp]
     setRefundedBids(updated)
     localStorage.setItem('refunded_bids', JSON.stringify(updated))
-    alert(`Sukses menarik kembali jaminan dana sebesar ${amount.toFixed(4)} ATOM ke dompet Keplr Anda!`)
+    alert(`Sukses menarik kembali jaminan dana sebesar ${amount.toFixed(4)} STAKE ke dompet Keplr Anda!`)
   }
 
   const handleClaimAsset = (timestamp, assetName) => {
@@ -246,7 +246,7 @@ export default function History() {
                 </p>
                 <div className="flex items-center justify-center gap-1.5">
                   <p className="font-stats-display text-lg text-blue-600 font-bold">
-                    {bid.amount.toFixed(4)} ATOM
+                    {bid.amount.toFixed(4)} STAKE
                   </p>
                 </div>
               </div>
@@ -287,13 +287,13 @@ export default function History() {
                         <h3 className="font-stats-display text-base font-bold uppercase tracking-wider">Lelang Dimenangkan!</h3>
                       </div>
                       <p className="font-body-md text-xs text-gray-600 leading-relaxed">
-                        Selamat! Penawaran Anda sebesar <strong>{bid.amount.toFixed(4)} ATOM</strong> adalah yang tertinggi untuk aset "{bid.assetName}". Anda dapat mengklaim kepemilikan aset digital ini sekarang.
+                        Selamat! Penawaran Anda sebesar <strong>{bid.amount.toFixed(4)} STAKE</strong> adalah yang tertinggi untuk aset "{bid.assetName}". Anda dapat mengklaim kepemilikan aset digital ini sekarang.
                       </p>
                     </div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between mb-4 bg-gray-55 px-4 py-3 border border-outline-variant/10 rounded-lg text-xs font-label-mono bg-gray-50 border">
                         <span className="text-gray-500">HARGA AKHIR</span>
-                        <span className="text-gray-800 font-bold">{bid.amount.toFixed(4)} ATOM</span>
+                        <span className="text-gray-800 font-bold">{bid.amount.toFixed(4)} STAKE</span>
                       </div>
                       {isClaimed ? (
                         <div className="w-full bg-[#10b981]/10 text-[#10b981] border border-[#10b981]/30 py-3 rounded-lg font-label-mono text-xs uppercase tracking-wider text-center font-bold">
@@ -321,13 +321,13 @@ export default function History() {
                         <h3 className="font-stats-display text-base font-bold uppercase tracking-wider">Tawaran Terlampaui (Kalah)</h3>
                       </div>
                       <p className="font-body-md text-xs text-gray-600 leading-relaxed">
-                        Penawaran Anda sebesar <strong>{bid.amount.toFixed(4)} ATOM</strong> telah terlampaui oleh penawar lain. Silakan tarik kembali dana jaminan Anda ke dompet.
+                        Penawaran Anda sebesar <strong>{bid.amount.toFixed(4)} STAKE</strong> telah terlampaui oleh penawar lain. Silakan tarik kembali dana jaminan Anda ke dompet.
                       </p>
                     </div>
                     <div className="mt-4">
                       <div className="flex items-center justify-between mb-4 bg-gray-50 px-4 py-3 border border-outline-variant/10 rounded-lg text-xs font-label-mono border">
                         <span className="text-gray-500">DANA TERKUNCI</span>
-                        <span className="text-gray-800 font-bold">{bid.amount.toFixed(4)} ATOM</span>
+                        <span className="text-gray-800 font-bold">{bid.amount.toFixed(4)} STAKE</span>
                       </div>
                       {isRefunded ? (
                         <div className="w-full bg-gray-100 border border-gray-200 text-gray-400 py-3 rounded-lg font-label-mono text-xs uppercase tracking-wider text-center">
@@ -376,7 +376,7 @@ export default function History() {
                         <tr className="border-b border-gray-100">
                           <td className="py-3.5 px-5 font-label-mono text-gray-500">Jumlah Tawaran</td>
                           <td className="py-3.5 px-5 font-label-mono text-blue-600 font-bold">
-                            {bid.amount.toFixed(4)} ATOM
+                            {bid.amount.toFixed(4)} STAKE
                           </td>
                         </tr>
                         <tr className="border-b border-gray-100">

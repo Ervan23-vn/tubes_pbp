@@ -21,7 +21,7 @@ export default function SubmitBid() {
   const { itemId } = useParams()
   const navigate = useNavigate()
   const walletAddress = getStoredWalletAddress()
-  const balance = 500.00 // Mock user balance in ATOM
+  const balance = 500.00 // Mock user balance in STAKE
 
   const [assets, setAssets] = useState([])
   const [selectedAsset, setSelectedAsset] = useState(null)
@@ -123,7 +123,7 @@ export default function SubmitBid() {
     const logsSequence = [
       '[SYSTEM] Menginisialisasi sirkuit lelang sealed-bid...',
       '[SYSTEM] Memuat berkas input parameter penawaran...',
-      `[DATA]   - Nominal: ${bidAmount} ATOM (${ethersObj.parseEther(bidAmount).toString()} minimalDenom)`,
+      `[DATA]   - Nominal: ${bidAmount} STAKE (${ethersObj.parseEther(bidAmount).toString()} minimalDenom)`,
       `[DATA]   - Secret Salt: ${saltKey}`,
       '[CRYPTO] Menghitung local Keccak256 hash...',
       `[CRYPTO] Hash: ${computedHash}`,
@@ -157,7 +157,7 @@ AETHER AUCTION - KUNCI PENAWARAN SEALED-BID
 WAKTU UNDUH      : ${new Date().toLocaleString()}
 WALLET ADDRESS   : ${walletAddress || 'Keplr Tidak Terhubung'}
 ASET             : ${selectedAsset.name} (ID: ${selectedAsset.id})
-NOMINAL PENAWARAN: ${bidAmount} ATOM
+NOMINAL PENAWARAN: ${bidAmount} STAKE
 SECRET SALT      : ${saltKey}
 COMMITMENT HASH  : ${computedHash}
 ==================================================
@@ -210,7 +210,7 @@ dapat dibuka dan dana Anda akan terkunci selamanya.
     })
 
     localStorage.setItem('bid_history', JSON.stringify(bids))
-    alert(`Komitmen penawaran sebesar ${bidAmount} ATOM untuk "${selectedAsset.name}" berhasil dikirim ke blockchain!`)
+    alert(`Komitmen penawaran sebesar ${bidAmount} STAKE untuk "${selectedAsset.name}" berhasil dikirim ke blockchain!`)
     
     setZkpStatus('idle')
     setBidAmount('')
@@ -349,8 +349,8 @@ dapat dibuka dan dana Anda akan terkunci selamanya.
               {/* Bid Amount */}
               <div className="flex flex-col gap-2">
                 <label className="font-label-mono text-[10px] sm:text-xs text-gray-500 flex justify-between">
-                  <span>Jumlah Penawaran (ATOM)</span>
-                  <span className="text-gray-500/80">Saldo: {balance.toFixed(2)} ATOM</span>
+                  <span>Jumlah Penawaran (STAKE)</span>
+                  <span className="text-gray-500/80">Saldo: {balance.toFixed(2)} STAKE</span>
                 </label>
                 <div className="relative">
                   <input
@@ -362,7 +362,7 @@ dapat dibuka dan dana Anda akan terkunci selamanya.
                     value={bidAmount}
                     onChange={(e) => setBidAmount(e.target.value)}
                   />
-                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-label-mono text-xs text-gray-400">ATOM</span>
+                  <span className="absolute right-4 top-1/2 -translate-y-1/2 font-label-mono text-xs text-gray-400">STAKE</span>
                 </div>
               </div>
 
@@ -410,7 +410,7 @@ dapat dibuka dan dana Anda akan terkunci selamanya.
                 <div>
                   <div className="font-label-mono text-[10px] text-gray-800 mb-1 font-bold">ZKP OFFLINE PRIVACY</div>
                   <div className="font-body-md text-[11px] sm:text-xs text-gray-600 leading-relaxed">
-                    Nominal asli ({bidAmount || '0'} ATOM) dan kunci rahasia ({saltKey || 'kosong'}) <strong>tidak akan pernah dikirim</strong> ke database off-chain atau blockchain. Hanya hash komitmen yang akan dicatat publik.
+                    Nominal asli ({bidAmount || '0'} STAKE) dan kunci rahasia ({saltKey || 'kosong'}) <strong>tidak akan pernah dikirim</strong> ke database off-chain atau blockchain. Hanya hash komitmen yang akan dicatat publik.
                   </div>
                 </div>
               </div>

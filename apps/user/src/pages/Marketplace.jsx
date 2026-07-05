@@ -126,7 +126,7 @@ export default function Marketplace() {
 
   const stats = [
     { label: 'Total Aset Aktif', value: totalAssets, icon: 'token', color: 'text-primary' },
-    { label: 'Volume Penawaran', value: `${totalVolume.toFixed(2)} ATOM`, icon: 'bar_chart', color: 'text-secondary' },
+    { label: 'Volume Penawaran', value: `${totalVolume.toFixed(2)} STAKE`, icon: 'bar_chart', color: 'text-secondary' },
     { label: 'Komitmen Global', value: totalCommits, icon: 'lock', color: 'text-[#fbbf24]' },
     { label: 'Rata-rata Sisa Waktu', value: `${avgMinutes}m ${avgSecs}s`, icon: 'timer', color: 'text-[#10b981]' },
   ]
@@ -257,7 +257,7 @@ export default function Marketplace() {
                     <div className="flex justify-between items-end mt-auto pt-3 border-t border-gray-100">
                       <div className="flex flex-col gap-0.5">
                         <span className="text-[10px] text-gray-400">Tawaran Tertinggi</span>
-                        <span className="text-primary text-sm font-bold">{asset.currentBid.toLocaleString('id-ID', { minimumFractionDigits: 2 })} ATOM</span>
+                        <span className="text-primary text-sm font-bold">{asset.currentBid.toLocaleString('id-ID', { minimumFractionDigits: 2 })} STAKE</span>
                       </div>
                       <div className="flex flex-col gap-0.5 items-end">
                         <span className="text-[10px] text-gray-400">Sisa Waktu</span>
@@ -311,7 +311,7 @@ export default function Marketplace() {
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-[11px] text-secondary font-semibold">
-                        {commit.amount !== undefined ? `${commit.amount.toLocaleString('id-ID', { minimumFractionDigits: 2 })} ATOM` : 'Sealed 🔒'}
+                        {commit.amount !== undefined ? `${commit.amount.toLocaleString('id-ID', { minimumFractionDigits: 2 })} STAKE` : 'Sealed 🔒'}
                       </span>
                       <span className="text-[9px] text-gray-400">{commit.time}</span>
                     </div>

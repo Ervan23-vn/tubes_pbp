@@ -178,7 +178,7 @@ export default function LeaderboardPage() {
         </div>
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">Bid Tertinggi</div>
-          <div className="text-2xl font-bold text-secondary">{participants.length > 0 ? participants[0].amount.toFixed(2) : '0'} <span className="text-sm text-gray-400">ATOM</span></div>
+          <div className="text-2xl font-bold text-secondary">{participants.length > 0 ? participants[0].amount.toFixed(2) : '0'} <span className="text-sm text-gray-400">STAKE</span></div>
         </div>
         <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
           <div className="text-[10px] text-gray-400 uppercase tracking-wider font-semibold mb-1">Status</div>
@@ -303,7 +303,7 @@ export default function LeaderboardPage() {
                         <span className={`text-sm font-bold ${isGold ? 'text-[#fbbf24]' : isSilver ? 'text-gray-500' : isBronze ? 'text-[#b45309]' : 'text-secondary'}`}>
                           {participant.amount.toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}
                         </span>
-                        <span className="text-gray-400 text-[10px] ml-1">ATOM</span>
+                        <span className="text-gray-400 text-[10px] ml-1">STAKE</span>
                       </td>
                     </tr>
                   )
