@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { isAuthenticated } from './utils/keplr'
 import Layout from './components/Layout'
@@ -14,10 +15,16 @@ function ProtectedRoute({ children }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    // Clear credentials on start to force login first
+    localStorage.removeItem('jwt_token')
+    localStorage.removeItem('wallet_address')
+  }, [])
+
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/login" element={!isAuthenticated() ? <Login /> : <Navigate to="/marketplace" />} />
+        <Route path="/login" element={<Login />} />
         
         <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
           <Route path="/marketplace" element={<Marketplace />} />
@@ -29,7 +36,7 @@ export default function App() {
           <Route path="/leaderboard" element={<Leaderboard />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/marketplace" />} />
+        <Route path="/" element={<Navigate to="/login" />} />
       </Routes>
     </BrowserRouter>
   )

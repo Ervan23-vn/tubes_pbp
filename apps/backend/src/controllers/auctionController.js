@@ -1,5 +1,6 @@
 import { query } from '../config/database.js';
 import { v4 as uuidv4 } from 'uuid';
+import { ethers } from 'ethers';
 
 /**
  * Auction Controller - Handle all auction-related operations
@@ -205,6 +206,215 @@ export async function getAuctionsBySellerAddress(req, res) {
     res.status(500).json({
       success: false,
       message: 'Failed to fetch auctions',
+      error: error.message
+    });
+  }
+}
+
+export async function revealBid(req, res) {
+  try {
+    const { item_id } = req.params;
+    const { amount, salt, hash } = req.body;
+    const bidderAddress = req.user.walletAddress;
+
+    if (!amount || !salt || !hash) {
+      return res.status(400).json({
+        success: false,
+        message: 'Missing reveal parameters: amount, salt, hash'
+      });
+    }
+
+    // 1. Calculate the hash locally to verify
+    const amountInWei = ethers.parseEther(amount.toString());
+    const computedHash = ethers.solidityPackedKeccak256(
+      ['uint256', 'string'],
+      [amountInWei, salt]
+    );
+
+    if (computedHash.toLowerCase() !== hash.toLowerCase()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Computed hash does not match provided commitment hash'
+      });
+    }
+
+    // 2. Check if the commitment exists in database for this bidder
+    const proofResult = await query(
+      `SELECT * FROM zkp_proof_backup 
+       WHERE item_id = $1 AND bidder_address = $2 AND commitment_hash = $3`,
+      [item_id, bidderAddress, hash]
+    );
+
+    if (proofResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Commitment hash not found for this user and item'
+      });
+    }
+
+    // 3. Mark the proof as verified/revealed in database
+    await query(
+      `UPDATE zkp_proof_backup 
+       SET verified = 1, verification_timestamp = CURRENT_TIMESTAMP
+       WHERE id = $1`,
+      [proofResult.rows[0].id]
+    );
+
+    // 4. Fetch current auction details
+    const auctionResult = await query(
+      `SELECT * FROM auctions_metadata WHERE item_id = $1`,
+      [item_id]
+    );
+
+    if (auctionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Auction not found'
+      });
+    }
+
+    const auction = auctionResult.rows[0];
+    const currentHighestBid = auction.current_highest_bid || auction.starting_price || 0;
+
+    let updated = false;
+    if (parseFloat(amount) > parseFloat(currentHighestBid)) {
+      // Update highest bid
+      await query(
+        `UPDATE auctions_metadata 
+         SET current_highest_bid = $1, highest_bidder_address = $2, updated_at = CURRENT_TIMESTAMP
+         WHERE item_id = $3`,
+        [parseFloat(amount), bidderAddress, item_id]
+      );
+      updated = true;
+    }
+
+    res.json({
+      success: true,
+      message: 'Bid successfully revealed and verified',
+      data: {
+        hash,
+        amount,
+        isHighest: updated
+      }
+    });
+
+  } catch (error) {
+    console.error('Reveal bid error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reveal bid',
+      error: error.message
+    });
+  }
+}
+
+export async function claimAuctionAsset(req, res) {
+  try {
+    const { item_id } = req.params;
+    const bidderAddress = req.user.walletAddress;
+
+    // Fetch auction details
+    const auctionResult = await query(
+      `SELECT * FROM auctions_metadata WHERE item_id = $1`,
+      [item_id]
+    );
+
+    if (auctionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Auction not found'
+      });
+    }
+
+    const auction = auctionResult.rows[0];
+
+    // Check if the caller is the highest bidder
+    if (auction.highest_bidder_address !== bidderAddress) {
+      return res.status(403).json({
+        success: false,
+        message: 'Only the winner can claim this asset'
+      });
+    }
+
+    // Create notification for successful claim
+    await query(
+      `INSERT INTO notifications (user_address, notification_type, title, message, item_id)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        bidderAddress,
+        'claim_success',
+        'Klaim Aset Berhasil!',
+        `Selamat! Anda telah berhasil mengklaim kepemilikan aset digital "${auction.title}" melalui jaringan blockchain.`,
+        item_id
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: 'Asset successfully claimed on blockchain'
+    });
+
+  } catch (error) {
+    console.error('Claim asset error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to claim asset',
+      error: error.message
+    });
+  }
+}
+
+export async function refundCollateral(req, res) {
+  try {
+    const { item_id } = req.params;
+    const bidderAddress = req.user.walletAddress;
+
+    // Fetch auction details
+    const auctionResult = await query(
+      `SELECT * FROM auctions_metadata WHERE item_id = $1`,
+      [item_id]
+    );
+
+    if (auctionResult.rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'Auction not found'
+      });
+    }
+
+    const auction = auctionResult.rows[0];
+
+    // Check if the caller is NOT the highest bidder
+    if (auction.highest_bidder_address === bidderAddress) {
+      return res.status(400).json({
+        success: false,
+        message: 'Winner cannot refund collateral; their funds are used to pay for the won asset'
+      });
+    }
+
+    // Create notification for successful refund
+    await query(
+      `INSERT INTO notifications (user_address, notification_type, title, message, item_id)
+       VALUES ($1, $2, $3, $4, $5)`,
+      [
+        bidderAddress,
+        'refund_success',
+        'Jaminan Dana Dikembalikan',
+        `Dana jaminan Anda untuk lelang "${auction.title}" telah dicairkan dan dikembalikan ke alamat wallet Anda.`,
+        item_id
+      ]
+    );
+
+    res.json({
+      success: true,
+      message: 'Collateral successfully refunded to wallet address'
+    });
+
+  } catch (error) {
+    console.error('Refund collateral error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to refund collateral',
       error: error.message
     });
   }

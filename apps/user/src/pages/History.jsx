@@ -1,32 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getStoredWalletAddress } from '../utils/keplr'
-
-// Helper to determine deterministically if the user's bid is the highest for a given asset
-const getIsHighestBidForAsset = (assetName, userAmount) => {
-  const seed = assetName.charCodeAt(0) + (assetName.charCodeAt(1) || 0) || 100
-  
-  if (userAmount > 10) {
-    // For large values (like 1650, 750)
-    const base = userAmount > 1000 ? 1600 : userAmount > 500 ? 900 : 40;
-    return userAmount >= base;
-  }
-
-  // Deterministic amounts for other participants
-  const rawList = [
-    { amount: 0.1500 },
-    { amount: 0.2200 },
-    { amount: 0.1800 },
-    { amount: 0.2500 },
-  ]
-  const otherAmounts = rawList.map((p, i) => {
-    const diff = ((seed + i * 17) % 15) / 100
-    return parseFloat((0.12 + diff).toFixed(4))
-  })
-  
-  const maxOtherAmount = Math.max(...otherAmounts)
-  return userAmount >= maxOtherAmount
-}
+import { auctionsAPI } from '../utils/api'
 
 export default function History() {
   const navigate = useNavigate()
@@ -36,43 +11,25 @@ export default function History() {
   const [bidsSubmitted, setBidsSubmitted] = useState([])
   const [refundedBids, setRefundedBids] = useState([])
   const [claimedBids, setClaimedBids] = useState([])
+  const [highestBidsMap, setHighestBidsMap] = useState({})
+
+  // Helper to determine if the user's bid is the highest for a given asset
+  const getIsHighestBidForAsset = (itemId, userAmount) => {
+    if (highestBidsMap[itemId] !== undefined) {
+      return userAmount >= highestBidsMap[itemId]
+    }
+    return false
+  }
 
   useEffect(() => {
-    // Load submitted bids from localStorage, or initialize with mock data if empty for dev
-    let storedBids = localStorage.getItem('bid_history')
+    // Load submitted bids from localStorage (no mock fallbacks)
+    const storedBids = localStorage.getItem('bid_history')
     if (storedBids) {
       try {
         setBidsSubmitted(JSON.parse(storedBids))
       } catch (e) {
         console.error(e)
       }
-    } else {
-      // Mock data for development
-      const defaultMockBids = [
-        {
-          timestamp: '2026-07-01 10:30:15',
-          assetName: 'MacBook Pro M3 Max 16-inch 36GB 1TB Space Black',
-          amount: 1650.0000,
-          revealed: true,
-          hash: '5f4dcc3b5aa765d61d8327deb882cf99f2b8b99bbccaa887766554433221100'
-        },
-        {
-          timestamp: '2026-07-01 11:15:22',
-          assetName: 'Lukisan Abstrak Modern "Cosmic Harmony" Original Canvas',
-          amount: 750.0000,
-          revealed: true,
-          hash: '7c6a5a4f3e2d1c0b9a8f7e6d5c4b3a2100112233445566778899aabbccddeeff'
-        },
-        {
-          timestamp: '2026-07-01 12:00:00',
-          assetName: 'Cosmos ATOM Custom Neon Light Sign LED',
-          amount: 45.0000,
-          revealed: false,
-          hash: '8f7e6d5c4b3a2100112233445566778899aabbccddeeff001122334455667788'
-        }
-      ]
-      setBidsSubmitted(defaultMockBids)
-      localStorage.setItem('bid_history', JSON.stringify(defaultMockBids))
     }
 
     // Load refunded bids
@@ -90,20 +47,57 @@ export default function History() {
         setClaimedBids(JSON.parse(storedClaims))
       } catch (e) {}
     }
+
+    // Load live auctions highest bids from API
+    const fetchHighestBids = async () => {
+      try {
+        const response = await auctionsAPI.getAll()
+        if (response && response.success && Array.isArray(response.data)) {
+          const map = {}
+          response.data.forEach(item => {
+            map[item.item_id] = item.current_highest_bid || item.starting_price || 0
+          })
+          setHighestBidsMap(map)
+        }
+      } catch (err) {
+        console.error('Gagal memuat status penawaran tertinggi:', err)
+      }
+    }
+    fetchHighestBids()
   }, [])
 
-  const handleWithdrawRefund = (amount, timestamp) => {
-    const updated = [...refundedBids, timestamp]
-    setRefundedBids(updated)
-    localStorage.setItem('refunded_bids', JSON.stringify(updated))
-    alert(`Sukses menarik kembali jaminan dana sebesar ${amount.toFixed(4)} STAKE ke dompet Keplr Anda!`)
+  const handleWithdrawRefund = async (itemId, amount, timestamp) => {
+    try {
+      const response = await auctionsAPI.refund(itemId)
+      if (response.success) {
+        const updated = [...refundedBids, timestamp]
+        setRefundedBids(updated)
+        localStorage.setItem('refunded_bids', JSON.stringify(updated))
+        alert(`Sukses menarik kembali jaminan dana sebesar ${amount.toFixed(4)} STAKE ke dompet Keplr Anda!`)
+      } else {
+        alert(response.message || 'Gagal menarik kembali jaminan dana.')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Gagal menyinkronkan transaksi refund dengan backend.')
+    }
   }
 
-  const handleClaimAsset = (timestamp, assetName) => {
-    const updated = [...claimedBids, timestamp]
-    setClaimedBids(updated)
-    localStorage.setItem('claimed_bids', JSON.stringify(updated))
-    alert(`Sukses mengklaim kepemilikan aset digital "${assetName}"!`)
+  const handleClaimAsset = async (itemId, timestamp, assetName) => {
+    try {
+      const response = await auctionsAPI.claim(itemId)
+      if (response.success) {
+        const updated = [...claimedBids, timestamp]
+        setClaimedBids(updated)
+        localStorage.setItem('claimed_bids', JSON.stringify(updated))
+        alert(`Sukses mengklaim kepemilikan aset digital "${assetName}"!`)
+      } else {
+        alert(response.message || 'Gagal mengklaim kepemilikan aset.')
+      }
+    } catch (error) {
+      console.error(error)
+      alert('Gagal menyinkronkan transaksi klaim dengan backend.')
+    }
   }
 
   const handleGoToReveal = () => {
@@ -200,7 +194,7 @@ export default function History() {
         const isRefunded = refundedBids.includes(bid.timestamp)
         const isClaimed = claimedBids.includes(bid.timestamp)
         const isRevealed = bid.revealed
-        const isHighest = getIsHighestBidForAsset(bid.assetName, bid.amount)
+        const isHighest = getIsHighestBidForAsset(bid.itemId, bid.amount)
 
         return (
           <div key={bid.timestamp} className="glass-panel border border-outline-variant/10 rounded-xl overflow-hidden shadow-lg animate-in slide-in-from-bottom-4 duration-300 bg-white">
@@ -303,7 +297,7 @@ export default function History() {
                         <button
                           className="w-full bg-[#10b981] hover:brightness-110 active:scale-[0.98] text-white font-label-mono text-xs uppercase tracking-wider py-3.5 rounded-lg transition-all font-bold flex items-center justify-center gap-2 cursor-pointer"
                           onClick={() => {
-                            handleClaimAsset(bid.timestamp, bid.assetName)
+                            handleClaimAsset(bid.itemId, bid.timestamp, bid.assetName)
                           }}
                         >
                           <span className="material-symbols-outlined text-sm">download</span>
@@ -337,7 +331,7 @@ export default function History() {
                         <button
                           className="w-full bg-gray-800 hover:bg-gray-900 active:scale-[0.98] text-white font-label-mono text-xs uppercase tracking-wider py-3.5 rounded-lg transition-all flex items-center justify-center gap-2 cursor-pointer"
                           onClick={() => {
-                            handleWithdrawRefund(bid.amount, bid.timestamp)
+                            handleWithdrawRefund(bid.itemId, bid.amount, bid.timestamp)
                           }}
                         >
                           <span className="material-symbols-outlined text-sm">account_balance_wallet</span>

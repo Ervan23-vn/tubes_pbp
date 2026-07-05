@@ -201,7 +201,7 @@ export default function CreateAuction() {
         <div className="grid grid-cols-2 gap-4">
           <div>
             <label className="block text-sm font-semibold text-gray-700 mb-2">
-              Harga Mulai * (ATOM)
+              Harga Mulai * (STAKE)
             </label>
             <input
               type="number"

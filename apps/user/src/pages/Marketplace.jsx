@@ -1,79 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { getStoredWalletAddress } from '../utils/keplr'
-import { auctionsAPI } from '../utils/api'
-
-// =============================================
-// DATA SIMULASI MARKETPLACE
-// =============================================
-
-const MOCK_ASSETS = [
-  {
-    id: 'ITEM-001',
-    name: 'MacBook Pro M3 Max',
-    image: 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
-    type: 'Core Data',
-    timeLeft: '02:14:33',
-    currentBid: 320.50,
-    views: 142,
-  },
-  {
-    id: 'ITEM-002',
-    name: 'Rolex Submariner Date',
-    image: 'https://images.unsplash.com/photo-1587836374828-4dbafa94cf0e?auto=format&fit=crop&w=800&q=80',
-    type: 'Real Estate',
-    timeLeft: '01:06:12',
-    currentBid: 1250.00,
-    views: 89,
-  },
-  {
-    id: 'ITEM-003',
-    name: 'Vintage Gibson Les Paul',
-    image: 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?auto=format&fit=crop&w=800&q=80',
-    type: 'Core Data',
-    timeLeft: '00:18:45',
-    currentBid: 450.00,
-    views: 214,
-  },
-  {
-    id: 'ITEM-004',
-    name: 'NFT CryptoPunk #7804',
-    image: 'https://images.unsplash.com/photo-1639762681485-074b7f938ba0?auto=format&fit=crop&w=800&q=80',
-    type: 'Quantum CPU',
-    timeLeft: '03:02:58',
-    currentBid: 5200.00,
-    views: 327,
-  },
-  {
-    id: 'ITEM-005',
-    name: 'Tesla Model S Plaid',
-    image: 'https://images.unsplash.com/photo-1617788138017-80ad40651399?auto=format&fit=crop&w=800&q=80',
-    type: 'Real Estate',
-    timeLeft: '00:02:11',
-    currentBid: 890.75,
-    views: 56,
-  },
-  {
-    id: 'ITEM-006',
-    name: 'Apple Vision Pro',
-    image: 'https://images.unsplash.com/photo-1632882765546-1ee75f53becb?auto=format&fit=crop&w=800&q=80',
-    type: 'Quantum CPU',
-    timeLeft: '01:45:30',
-    currentBid: 675.00,
-    views: 198,
-  },
-]
-
-const MOCK_GLOBAL_COMMITS = [
-  { id: 'c1', address: 'cosmos1qx7za4f2mn8', amount: 320.50, time: '2 menit lalu' },
-  { id: 'c2', address: 'cosmos1m9kpd8e7rt3', amount: undefined, time: '5 menit lalu' },
-  { id: 'c3', address: 'cosmos1v3hnc1b9wy6', amount: 1250.00, time: '8 menit lalu' },
-  { id: 'c4', address: 'cosmos1jw82f6a3pk4', amount: 450.00, time: '12 menit lalu' },
-  { id: 'c5', address: 'cosmos1tn5re2d4xs9', amount: undefined, time: '15 menit lalu' },
-  { id: 'c6', address: 'cosmos1pk4eb7c1qm2', amount: 5200.00, time: '18 menit lalu' },
-  { id: 'c7', address: 'cosmos1rs6wa9f5jn7', amount: 890.75, time: '22 menit lalu' },
-  { id: 'c8', address: 'cosmos1hf4de7b2ck9', amount: 675.00, time: '25 menit lalu' },
-]
+import { auctionsAPI, zkpAPI } from '../utils/api'
 
 // =============================================
 // COMPONENT
@@ -81,33 +9,87 @@ const MOCK_GLOBAL_COMMITS = [
 
 export default function Marketplace() {
   const navigate = useNavigate()
-  const [assets, setAssets] = useState(MOCK_ASSETS)
-  const [globalCommits] = useState(MOCK_GLOBAL_COMMITS)
+  const [assets, setAssets] = useState([])
+  const [globalCommits, setGlobalCommits] = useState([])
   const [activeFilter, setActiveFilter] = useState('All')
 
-  // Try to load real data from backend, fall back to mock
+  const formatTimeLeft = (endTimeStr) => {
+    if (!endTimeStr) return '00:00:00'
+    const diff = new Date(endTimeStr) - new Date()
+    if (diff <= 0) return '00:00:00'
+    const hours = Math.floor(diff / (1000 * 60 * 60))
+    const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
+    const seconds = Math.floor((diff % (1000 * 60)) / 1000)
+    return [
+      hours.toString().padStart(2, '0'),
+      minutes.toString().padStart(2, '0'),
+      seconds.toString().padStart(2, '0')
+    ].join(':')
+  }
+
+  // Load real data from backend
   useEffect(() => {
-    const fetchAuctions = async () => {
+    const fetchAuctionsAndCommits = async () => {
       try {
         const response = await auctionsAPI.getAll()
-        if (response && response.success && Array.isArray(response.data) && response.data.length > 0) {
+        if (response && response.success && Array.isArray(response.data)) {
           const mapped = response.data.map(item => ({
             id: item.item_id,
             name: item.title,
             image: item.image_url || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
             type: item.category || 'Core Data',
-            timeLeft: '02:00:00',
-            currentBid: item.starting_price || 100,
+            endTime: item.end_time,
+            timeLeft: formatTimeLeft(item.end_time),
+            currentBid: item.current_highest_bid || item.starting_price || 0,
             views: Math.floor(Math.random() * 300) + 20,
           }))
           setAssets(mapped)
+
+          // Fetch proofs for each auction to compile global commits
+          const allCommits = []
+          for (const item of response.data) {
+            try {
+              const proofsRes = await zkpAPI.getProofsForAuction(item.item_id)
+              if (proofsRes && proofsRes.success && Array.isArray(proofsRes.data)) {
+                proofsRes.data.forEach(proof => {
+                  const pDate = new Date(proof.proof_generated_at)
+                  const diffMin = Math.round((new Date() - pDate) / 60000)
+                  const timeStr = diffMin <= 0 ? 'baru saja' : diffMin < 60 ? `${diffMin} menit lalu` : `${Math.floor(diffMin / 60)} jam lalu`
+                  
+                  allCommits.push({
+                    id: proof.id,
+                    address: proof.bidder_address,
+                    amount: proof.verified ? proof.nominal_bid : undefined,
+                    time: timeStr,
+                    timestamp: pDate.getTime()
+                  })
+                })
+              }
+            } catch (err) {
+              console.warn(`Gagal memuat proof untuk item ${item.item_id}:`, err)
+            }
+          }
+          allCommits.sort((a, b) => b.timestamp - a.timestamp)
+          setGlobalCommits(allCommits)
         }
       } catch (err) {
-        console.warn('Backend offline, menggunakan data simulasi marketplace.')
+        console.error('Gagal memuat data lelang dari backend:', err)
       }
     }
-    fetchAuctions()
+    fetchAuctionsAndCommits()
   }, [])
+
+  // Timer to update timeLeft every second
+  useEffect(() => {
+    if (assets.length === 0) return
+    const timer = setInterval(() => {
+      setAssets(prev => prev.map(asset => ({
+        ...asset,
+        timeLeft: formatTimeLeft(asset.endTime)
+      })))
+    }, 1000)
+    return () => clearInterval(timer)
+  }, [assets.length])
 
   // Stats
   const totalAssets = assets.length
@@ -324,7 +306,7 @@ export default function Marketplace() {
             <div className="p-3 border-t border-gray-100 bg-slate-50 rounded-b-xl">
               <p className="text-[9px] text-gray-400 text-center uppercase tracking-wider">
                 <span className="material-symbols-outlined text-[10px] align-middle mr-0.5">info</span>
-                Data simulasi — terhubung ke blockchain saat aktif
+                Terhubung ke Jaringan Lelang Blockchain
               </p>
             </div>
           </div>

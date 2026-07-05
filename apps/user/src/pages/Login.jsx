@@ -10,6 +10,12 @@ export default function Login() {
   const [error, setError] = useState('')
   const [toast, setToast] = useState(null)
 
+  // Clear session on login page load
+  useEffect(() => {
+    localStorage.removeItem('jwt_token')
+    localStorage.removeItem('wallet_address')
+  }, [])
+
   // Clear toast setelah 3 detik
   useEffect(() => {
     if (toast) {
@@ -101,8 +107,7 @@ export default function Login() {
           <h1 className="text-3xl font-bold text-gray-800">
             Lelang Blockchain
           </h1>
-          <p className="text-gray-600">Buyer Marketplace</p>
-          <p className="text-sm text-gray-500">TAHAP G - Frontend Pembeli</p>
+          <p className="text-gray-600">Peserta Lelang</p>
         </div>
 
         {/* Card Panel */}

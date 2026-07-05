@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
-import { AlertCircle } from 'lucide-react';
+import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
 
 /**
  * Network Monitoring Page
  * Monitor status 4 node lelang-testnet lokal
+ * Data akan muncul secara real-time saat node blockchain aktif
  */
 
 const NODES = [
@@ -16,120 +17,118 @@ const NODES = [
 export default function NetworkMonitoring() {
   const [nodeStatuses, setNodeStatuses] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState(null);
 
   useEffect(() => {
     checkNodesStatus();
-    // Auto-refresh every 10 seconds
     const interval = setInterval(checkNodesStatus, 10000);
     return () => clearInterval(interval);
   }, []);
 
   const checkNodesStatus = async () => {
+    setLoading(true);
     const statuses = await Promise.all(
       NODES.map(async (node) => {
         try {
+          const start = Date.now();
           const response = await fetch(`${node.rpcUrl}/status`, {
             method: 'GET',
-            headers: { 'Content-Type': 'application/json' }
+            headers: { 'Content-Type': 'application/json' },
+            signal: AbortSignal.timeout(3000)
           });
-          
+
           if (response.ok) {
+            const latency = Date.now() - start;
             const data = await response.json();
             return {
               ...node,
               status: 'online',
-              latency: '< 100ms',
-              blockHeight: data.result?.sync_info?.latest_block_height || 'N/A',
-              chainId: data.result?.node_info?.network || 'N/A',
+              latency: `${latency}ms`,
+              blockHeight: data.result?.sync_info?.latest_block_height || '-',
+              chainId: data.result?.node_info?.network || '-',
               peers: data.result?.net_info?.n_peers || 0
             };
-          } else {
-            return {
-              ...node,
-              status: 'offline',
-              latency: 'N/A',
-              blockHeight: 'N/A',
-              chainId: 'N/A',
-              peers: 0
-            };
           }
-        } catch (error) {
-          return {
-            ...node,
-            status: 'offline',
-            latency: 'N/A',
-            blockHeight: 'N/A',
-            chainId: 'N/A',
-            peers: 0,
-            error: error.message
-          };
+          return { ...node, status: 'offline', latency: '-', blockHeight: '-', chainId: '-', peers: 0 };
+        } catch {
+          return { ...node, status: 'offline', latency: '-', blockHeight: '-', chainId: '-', peers: 0 };
         }
       })
     );
-    
+
     setNodeStatuses(statuses);
+    setLastUpdated(new Date());
     setLoading(false);
   };
 
+  const onlineCount = nodeStatuses.filter(n => n.status === 'online').length;
+  const hasData = onlineCount > 0;
+
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-800">Monitoring Jaringan</h1>
-        <p className="text-gray-600 mt-1">Status real-time 4 node lelang-testnet lokal</p>
+      {/* Header */}
+      <div className="flex justify-between items-center">
+        <div>
+          <h1 className="text-3xl font-bold text-gray-800">Monitoring Jaringan</h1>
+          <p className="text-gray-600 mt-1">Status real-time 4 node lelang-testnet lokal</p>
+        </div>
+        <button
+          onClick={checkNodesStatus}
+          disabled={loading}
+          className="flex items-center space-x-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-lg transition text-sm"
+        >
+          <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
+          <span>Refresh</span>
+        </button>
       </div>
 
-      {/* Info Box */}
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <p className="text-sm text-blue-800">
-          <strong>ℹ️ Info:</strong> Halaman ini menampilkan status 4 node blockchain lelang-testnet.
-          Data diperbarui secara otomatis setiap 10 detik dari RPC endpoints lokal.
-        </p>
-      </div>
-
-      {/* Network Stats */}
+      {/* Summary Stats */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <StatCard
-          label="Total Nodes"
-          value={nodeStatuses.length}
-          subtext={`${nodeStatuses.filter(n => n.status === 'online').length} Online`}
-          icon="🖥️"
-        />
-        <StatCard
-          label="Chain ID"
-          value="lelang-testnet"
-          subtext="Local testnet"
-          icon="🔗"
-        />
-        <StatCard
-          label="Network Status"
-          value={nodeStatuses.every(n => n.status === 'online') ? 'Healthy' : 'Issues'}
-          subtext={nodeStatuses.every(n => n.status === 'online') ? '✓ All nodes OK' : '⚠ Check nodes'}
-          icon="💚"
-          color={nodeStatuses.every(n => n.status === 'online') ? 'bg-green-50' : 'bg-yellow-50'}
-        />
-        <StatCard
-          label="Avg Block Height"
-          value={Math.round(
-            nodeStatuses.reduce((sum, n) => {
-              const height = typeof n.blockHeight === 'number' ? n.blockHeight : 0;
-              return sum + height;
-            }, 0) / nodeStatuses.filter(n => n.blockHeight !== 'N/A').length || 0
-          )}
-          subtext="Latest block"
-          icon="📦"
-        />
+        <div className="bg-blue-50 rounded-lg p-6 border">
+          <p className="text-gray-600 text-sm">Total Nodes</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{NODES.length}</p>
+        </div>
+        <div className={`${hasData ? 'bg-green-50' : 'bg-gray-50'} rounded-lg p-6 border`}>
+          <p className="text-gray-600 text-sm">Online</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{onlineCount}</p>
+        </div>
+        <div className={`${!hasData ? 'bg-red-50' : 'bg-gray-50'} rounded-lg p-6 border`}>
+          <p className="text-gray-600 text-sm">Offline</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">{NODES.length - onlineCount}</p>
+        </div>
+        <div className="bg-purple-50 rounded-lg p-6 border">
+          <p className="text-gray-600 text-sm">Chain ID</p>
+          <p className="text-2xl font-bold text-gray-800 mt-1">lelang-testnet</p>
+        </div>
       </div>
 
-      {/* Nodes Table */}
+      {/* Nodes Status Table */}
       <div className="bg-white rounded-lg shadow overflow-hidden">
         <div className="p-6 border-b">
           <h2 className="text-xl font-semibold text-gray-800">Status Node</h2>
         </div>
 
-        {loading ? (
-          <div className="p-8 text-center">
-            <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
-            <p className="text-gray-600">Loading node status...</p>
+        {loading && nodeStatuses.length === 0 ? (
+          <div className="p-12 text-center">
+            <div className="w-10 h-10 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+            <p className="text-gray-600">Memeriksa status node...</p>
+          </div>
+        ) : !hasData ? (
+          <div className="p-12 text-center space-y-4">
+            <WifiOff size={48} className="mx-auto text-gray-400" />
+            <h3 className="text-lg font-semibold text-gray-700">Tidak Ada Node Aktif</h3>
+            <p className="text-gray-500 text-sm max-w-md mx-auto">
+              Saat ini tidak ada node blockchain yang terdeteksi. Pastikan node lelang-testnet sudah berjalan
+              di lokal sebelum data monitoring dapat ditampilkan.
+            </p>
+            <div className="bg-gray-50 border rounded-lg p-4 text-left max-w-lg mx-auto mt-4">
+              <p className="text-xs font-semibold text-gray-700 mb-2">Cara menjalankan node:</p>
+              <pre className="text-xs text-gray-600 font-mono">
+{`cd chain
+make localnet-build
+# Jalankan masing-masing node di terminal terpisah`}
+              </pre>
+            </div>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -148,33 +147,22 @@ export default function NetworkMonitoring() {
               <tbody>
                 {nodeStatuses.map((node) => (
                   <tr key={node.id} className="border-b hover:bg-gray-50 transition">
+                    <td className="px-6 py-4 font-semibold text-gray-800">{node.name}</td>
                     <td className="px-6 py-4">
-                      <p className="font-semibold text-gray-800">{node.name}</p>
-                    </td>
-                    <td className="px-6 py-4">
-                      <span className={`px-3 py-1 rounded-full text-sm font-semibold ${
+                      <span className={`inline-flex items-center space-x-1 px-3 py-1 rounded-full text-sm font-semibold ${
                         node.status === 'online'
                           ? 'bg-green-100 text-green-800'
                           : 'bg-red-100 text-red-800'
                       }`}>
-                        {node.status === 'online' ? '🟢 Online' : '🔴 Offline'}
+                        {node.status === 'online' ? <Wifi size={14} /> : <WifiOff size={14} />}
+                        <span>{node.status === 'online' ? 'Online' : 'Offline'}</span>
                       </span>
                     </td>
-                    <td className="px-6 py-4 font-mono text-sm text-gray-600">
-                      {node.rpcUrl}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-gray-800">
-                      {node.blockHeight}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-sm text-gray-600">
-                      {node.chainId}
-                    </td>
-                    <td className="px-6 py-4 text-center font-semibold text-gray-800">
-                      {node.peers}
-                    </td>
-                    <td className="px-6 py-4 font-mono text-gray-800">
-                      {node.latency}
-                    </td>
+                    <td className="px-6 py-4 font-mono text-sm text-gray-600">{node.rpcUrl}</td>
+                    <td className="px-6 py-4 font-mono text-gray-800">{node.blockHeight}</td>
+                    <td className="px-6 py-4 font-mono text-sm text-gray-600">{node.chainId}</td>
+                    <td className="px-6 py-4 text-center font-semibold text-gray-800">{node.peers}</td>
+                    <td className="px-6 py-4 font-mono text-gray-800">{node.latency}</td>
                   </tr>
                 ))}
               </tbody>
@@ -183,99 +171,12 @@ export default function NetworkMonitoring() {
         )}
       </div>
 
-      {/* Node Details */}
-      <div className="grid grid-cols-2 gap-6">
-        {nodeStatuses.map((node) => (
-          <div key={node.id} className="bg-white rounded-lg shadow p-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-800">{node.name}</h3>
-              <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                node.status === 'online'
-                  ? 'bg-green-100 text-green-800'
-                  : 'bg-red-100 text-red-800'
-              }`}>
-                {node.status === 'online' ? '🟢 Online' : '🔴 Offline'}
-              </span>
-            </div>
-
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span className="text-gray-600">RPC Port:</span>
-                <span className="font-mono font-semibold">{node.port}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Block Height:</span>
-                <span className="font-mono font-semibold">{node.blockHeight}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Connected Peers:</span>
-                <span className="font-mono font-semibold">{node.peers}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Latency:</span>
-                <span className="font-mono font-semibold">{node.latency}</span>
-              </div>
-            </div>
-
-            {node.error && (
-              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded text-xs text-red-800">
-                <p className="font-semibold">Error:</p>
-                <p className="font-mono">{node.error}</p>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {/* Instructions */}
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6">
-        <h3 className="font-semibold text-gray-800 mb-3">Setup Lokal 4 Node</h3>
-        <div className="text-sm text-gray-700 space-y-2">
-          <p>Untuk menjalankan 4 node lelang-testnet lokal:</p>
-          <pre className="bg-gray-800 text-gray-100 p-4 rounded overflow-x-auto text-xs">
-{`# Terminal 1
-cd chain
-make localnet-build
-
-# Terminal 2 (Node 1 - RPC 26657)
-chmod +x localnet/node*/config/*.sh
-cd localnet/node
-./node start
-
-# Terminal 3 (Node 2 - RPC 26668)
-cd localnet/node1
-./node start
-
-# Terminal 4 (Node 3 - RPC 26679)
-cd localnet/node2
-./node start
-
-# Terminal 5 (Node 4 - RPC 26690)
-cd localnet/node3
-./node start`}
-          </pre>
-        </div>
-      </div>
-
       {/* Last Updated */}
-      <div className="text-xs text-gray-500 text-right">
-        Last updated: {new Date().toLocaleTimeString('id-ID')}
-      </div>
-    </div>
-  );
-}
-
-function StatCard({ label, value, subtext, icon, color = 'bg-blue-50' }) {
-  return (
-    <div className={`${color} rounded-lg p-6 border`}>
-      <div className="flex items-center justify-between">
-        <div>
-          <p className="text-gray-600 text-sm">{label}</p>
-          <p className="text-2xl font-bold text-gray-800 mt-2">{value}</p>
-          <p className="text-xs text-gray-500 mt-1">{subtext}</p>
+      {lastUpdated && (
+        <div className="text-xs text-gray-500 text-right">
+          Terakhir diperbarui: {lastUpdated.toLocaleTimeString('id-ID')} · Auto-refresh setiap 10 detik
         </div>
-        <span className="text-3xl">{icon}</span>
-      </div>
+      )}
     </div>
   );
 }

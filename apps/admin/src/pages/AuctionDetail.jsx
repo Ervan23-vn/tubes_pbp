@@ -144,7 +144,7 @@ export default function AuctionDetail() {
             <div>
               <p className="text-sm text-gray-600">Harga Mulai</p>
               <p className="font-mono font-semibold text-lg text-gray-800 mt-1">
-                {parseFloat(auction.starting_price).toLocaleString('id-ID')} ATOM
+                {parseFloat(auction.starting_price).toLocaleString('id-ID')} STAKE
               </p>
             </div>
 
@@ -153,7 +153,7 @@ export default function AuctionDetail() {
               <p className="font-mono font-semibold text-lg text-gray-800 mt-1">
                 {auction.current_highest_bid 
                   ? parseFloat(auction.current_highest_bid).toLocaleString('id-ID') 
-                  : '-'} ATOM
+                  : '-'} STAKE
               </p>
             </div>
           </div>

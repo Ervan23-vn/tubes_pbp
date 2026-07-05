@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { ethers as ethersObj } from 'ethers'
-import { getStoredWalletAddress } from '../utils/keplr'
+import { getStoredWalletAddress, getWalletBalance } from '../utils/keplr'
 import { auctionsAPI, zkpAPI } from '../utils/api'
 
 // Helper to determine time left from ISO string
@@ -21,10 +21,17 @@ export default function SubmitBid() {
   const { itemId } = useParams()
   const navigate = useNavigate()
   const walletAddress = getStoredWalletAddress()
-  const balance = 500.00 // Mock user balance in STAKE
+  const [balance, setBalance] = useState(0.00)
 
   const [assets, setAssets] = useState([])
   const [selectedAsset, setSelectedAsset] = useState(null)
+
+  // Fetch real wallet balance on mount
+  useEffect(() => {
+    if (walletAddress) {
+      getWalletBalance(walletAddress).then(bal => setBalance(bal))
+    }
+  }, [walletAddress])
   
   const [bidAmount, setBidAmount] = useState('')
   const [saltKey, setSaltKey] = useState('')

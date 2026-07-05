@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ethers as ethersObj } from 'ethers'
 import { getStoredWalletAddress } from '../utils/keplr'
+import { auctionsAPI } from '../utils/api'
 
 export default function RevealBid() {
   const navigate = useNavigate()
@@ -12,6 +13,8 @@ export default function RevealBid() {
   const [revealStatus, setRevealStatus] = useState(null) // null | 'success'
   const [inputMode, setInputMode] = useState('upload') // 'upload' | 'manual'
   const [toast, setToast] = useState(null)
+  const [isLoading, setIsLoading] = useState(false)
+  const [loadingMessage, setLoadingMessage] = useState('')
 
   // Input states
   const [manualAmount, setManualAmount] = useState('')
@@ -138,22 +141,37 @@ export default function RevealBid() {
       return
     }
 
-    try {
-      // Mark bid as revealed in localStorage
-      const updated = bidsSubmitted.map((b) => {
-        if (b.hash === selectedBid.hash) {
-          return { ...b, revealed: true, revealedAmount: parseFloat(manualAmount) }
-        }
-        return b
-      })
-      setBidsSubmitted(updated)
-      localStorage.setItem('bid_history', JSON.stringify(updated))
+    setIsLoading(true)
+    setLoadingMessage('Mengirim data reveal ke blockchain...')
 
-      setRevealStatus('success')
-      showToast('Sukses mengungkap penawaran! Data hash terverifikasi penuh.', 'success')
+    try {
+      const response = await auctionsAPI.reveal(selectedBid.itemId, {
+        amount: parseFloat(manualAmount),
+        salt: manualSalt,
+        hash: localComputedHash
+      })
+
+      if (response.success) {
+        // Mark bid as revealed in localStorage
+        const updated = bidsSubmitted.map((b) => {
+          if (b.hash === selectedBid.hash) {
+            return { ...b, revealed: true, revealedAmount: parseFloat(manualAmount) }
+          }
+          return b
+        })
+        setBidsSubmitted(updated)
+        localStorage.setItem('bid_history', JSON.stringify(updated))
+
+        setRevealStatus('success')
+        showToast('Sukses mengungkap penawaran! Data hash terverifikasi penuh.', 'success')
+      } else {
+        showToast(response.message || 'Gagal mengungkap penawaran.', 'error')
+      }
     } catch (err) {
       console.error(err)
-      showToast('Gagal menyinkronkan data reveal.', 'error')
+      showToast('Gagal menyinkronkan data reveal dengan backend.', 'error')
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -168,6 +186,14 @@ export default function RevealBid() {
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300 max-w-[720px] mx-auto w-full">
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex flex-col items-center justify-center space-y-4">
+          <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+          <p className="font-mono text-xs text-white tracking-widest uppercase animate-pulse">{loadingMessage}</p>
+        </div>
+      )}
 
       {/* Floating Toast */}
       {toast && (

@@ -17,6 +17,35 @@ export const getKeplr = () => {
   return window.keplr;
 };
 
+const LELANG_CHAIN_INFO = {
+  chainId: 'lelangchain',
+  chainName: 'Lelang Blockchain Testnet',
+  rpc: 'http://localhost:26607',
+  rest: 'http://localhost:1307',
+  bip44: { coinType: 118 },
+  bech32Config: {
+    bech32PrefixAccAddr: 'cosmos',
+    bech32PrefixAccPub: 'cosmospub',
+    bech32PrefixValAddr: 'cosmosvaloper',
+    bech32PrefixValPub: 'cosmosvaloperpub',
+    bech32PrefixConsAddr: 'cosmosvalcons',
+    bech32PrefixConsPub: 'cosmosvalconspub',
+  },
+  currencies: [
+    { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+    { coinDenom: 'TOKEN', coinMinimalDenom: 'token', coinDecimals: 6 },
+  ],
+  feeCurrencies: [
+    {
+      coinDenom: 'STAKE',
+      coinMinimalDenom: 'stake',
+      coinDecimals: 6,
+      gasPriceStep: { low: 0.01, average: 0.025, high: 0.04 },
+    },
+  ],
+  stakeCurrency: { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+};
+
 /**
  * Connect to Keplr wallet
  */
@@ -32,11 +61,14 @@ export const connectKeplrWallet = async () => {
     }
     const keplr = getKeplr();
     
+    // Register our custom chain with Keplr first
+    await keplr.experimentalSuggestChain(LELANG_CHAIN_INFO);
+    
     // Request connection to chain
-    await keplr.enable('lelang-testnet');
+    await keplr.enable('lelangchain');
     
     // Get account info
-    const account = await keplr.getKey('lelang-testnet');
+    const account = await keplr.getKey('lelangchain');
     
     return {
       success: true,
@@ -67,7 +99,7 @@ export const signMessageWithKeplr = async (message, address) => {
     const keplr = getKeplr();
     
     const signDoc = {
-      chain_id: 'lelang-testnet',
+      chain_id: 'lelangchain',
       account_number: '0',
       sequence: '0',
       fee: {
@@ -87,7 +119,7 @@ export const signMessageWithKeplr = async (message, address) => {
     };
 
     const result = await keplr.signAmino(
-      'lelang-testnet',
+      'lelangchain',
       address,
       signDoc,
       {
@@ -141,7 +173,7 @@ export const authenticateWithBackend = async (walletAddress) => {
     );
 
     if (response.data.success) {
-      const jwtToken = response.headers['x-auth-token'];
+      const jwtToken = response.data?.data?.token || response.headers['x-auth-token'];
       
       // Store JWT token
       localStorage.setItem('authToken', jwtToken);
