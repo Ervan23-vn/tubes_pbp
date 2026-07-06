@@ -110,7 +110,7 @@ export async function signMessageWithKeplr(message, address) {
 
     // Sign using Amino format
     const signDoc = {
-      chain_id: 'lelangchain',
+      chain_id: '',
       account_number: '0',
       sequence: '0',
       fee: {
@@ -121,6 +121,7 @@ export async function signMessageWithKeplr(message, address) {
         {
           type: 'sign/MsgSignData',
           value: {
+            signer: address,
             data: toBase64(message)
           }
         }

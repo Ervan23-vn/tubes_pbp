@@ -82,7 +82,8 @@ export async function uploadImage(req, res) {
     res.status(500).json({
       success: false,
       message: 'Failed to upload image',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 }
@@ -117,7 +118,8 @@ export async function getUploadedImage(req, res) {
     res.status(500).json({
       success: false,
       message: 'Failed to retrieve image',
-      error: error.message
+      error: error.message,
+      stack: error.stack
     });
   }
 }

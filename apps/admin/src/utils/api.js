@@ -113,3 +113,16 @@ export const zkpAPI = {
 }
 
 export default client
+
+
+/**
+ * Helper to resolve image URL with Backend address if relative
+ */
+export const getImageUrl = (url) => {
+  if (!url) return '';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const cleanUrl = url.startsWith('/') ? url : '/' + url;
+  return `http://localhost:3001${cleanUrl}`;
+};

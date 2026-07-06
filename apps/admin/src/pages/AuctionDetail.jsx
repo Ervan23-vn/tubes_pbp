@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
-import { auctionsAPI, zkpAPI } from '../utils/api';
+import { auctionsAPI, zkpAPI, getImageUrl } from '../utils/api';
 
 /**
  * Auction Detail Page
@@ -114,7 +114,7 @@ export default function AuctionDetail() {
           {auction.image_url && (
             <div className="bg-white rounded-lg shadow overflow-hidden">
               <img
-                src={auction.image_url}
+                src={getImageUrl(auction.image_url)}
                 alt={auction.title}
                 className="w-full h-64 object-cover"
               />

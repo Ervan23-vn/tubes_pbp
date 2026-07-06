@@ -1,27 +1,28 @@
 import axios from 'axios';
 
-/**
- * Keplr Wallet Integration
- * TAHAP G - Frontend Admin - Wallet Connection
- */
-
 const API_URL = 'http://localhost:3001/api';
 
-/**
- * Get Keplr window object
- */
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary);
+}
+
 export const getKeplr = () => {
   if (!window.keplr) {
-    throw new Error('Keplr wallet is not installed. Please install it from: https://www.keplr.app');
+    throw new Error('Keplr wallet is not installed.');
   }
   return window.keplr;
 };
 
 const LELANG_CHAIN_INFO = {
-  chainId: 'lelangchain',
+  chainId: 'lelang-testnet',
   chainName: 'Lelang Blockchain Testnet',
-  rpc: 'http://localhost:26607',
-  rest: 'http://localhost:1307',
+  rpc: 'http://localhost:26657',
+  rest: 'http://localhost:1317',
   bip44: { coinType: 118 },
   bech32Config: {
     bech32PrefixAccAddr: 'cosmos',
@@ -46,72 +47,61 @@ const LELANG_CHAIN_INFO = {
   stakeCurrency: { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
 };
 
-/**
- * Connect to Keplr wallet
- */
 export const connectKeplrWallet = async () => {
-  try {
-    if (!window.keplr) {
-      console.warn('Keplr wallet not detected. Falling back to Mock Wallet for testing.');
-      return {
-        success: true,
-        address: 'cosmos1test1234567890abcdefghijklmnop1',
-        pubKey: new Uint8Array([1, 2, 3])
-      };
-    }
-    const keplr = getKeplr();
-    
-    // Register our custom chain with Keplr first
-    await keplr.experimentalSuggestChain(LELANG_CHAIN_INFO);
-    
-    // Request connection to chain
-    await keplr.enable('lelangchain');
-    
-    // Get account info
-    const account = await keplr.getKey('lelangchain');
-    
+  if (!window.keplr) {
+    console.warn('Keplr not detected, using mock wallet.');
     return {
-      success: true,
-      address: account.bech32Address,
-      pubKey: account.pubKey
+      address: 'cosmos1test1234567890abcdefghijklmnop1',
+      pubKey: new Uint8Array([1, 2, 3]),
+      name: 'Mock Admin Wallet'
+    };
+  }
+
+  const keplr = getKeplr();
+  try {
+    await keplr.experimentalSuggestChain(LELANG_CHAIN_INFO);
+    await keplr.enable('lelang-testnet');
+    const key = await keplr.getKey('lelang-testnet');
+    return {
+      address: key.bech32Address,
+      pubKey: key.pubKey,
+      name: key.name
     };
   } catch (error) {
-    console.error('Keplr connection error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    throw new Error('Gagal koneksi Keplr: ' + error.message);
   }
 };
 
 /**
- * Sign message with Keplr
+ * Sign message with Keplr using ADR-36 format
+ * ADR-36 requires chain_id = "" (empty string)
  */
 export const signMessageWithKeplr = async (message, address) => {
+  if (!window.keplr) {
+    console.warn('Keplr not detected, using mock signature.');
+    return {
+      signature: 'mock_signature_data_for_testing_purposes_only',
+      pub_key: { type: 'tendermint/PubKeySecp256k1', value: 'mock_pub_key' }
+    };
+  }
+
+  const keplr = getKeplr();
   try {
-    if (!window.keplr) {
-      console.warn('Keplr wallet not detected. Falling back to Mock Signature for testing.');
-      return {
-        success: true,
-        signature: 'mock_signature_data_for_testing_purposes_only'
-      };
-    }
-    const keplr = getKeplr();
-    
+    // ADR-36: chain_id MUST be empty string ""
     const signDoc = {
-      chain_id: 'lelangchain',
+      chain_id: '',
       account_number: '0',
       sequence: '0',
       fee: {
-        amount: [],
-        gas: '0'
+        gas: '0',
+        amount: []
       },
       msgs: [
         {
           type: 'sign/MsgSignData',
           value: {
             signer: address,
-            data: Buffer.from(message).toString('base64')
+            data: toBase64(message)
           }
         }
       ],
@@ -119,7 +109,7 @@ export const signMessageWithKeplr = async (message, address) => {
     };
 
     const result = await keplr.signAmino(
-      'lelangchain',
+      'lelang-testnet',
       address,
       signDoc,
       {
@@ -129,113 +119,66 @@ export const signMessageWithKeplr = async (message, address) => {
     );
 
     return {
-      success: true,
-      signature: result.signature.signature
+      signature: result.signature,
+      pub_key: result.pub_key
     };
   } catch (error) {
-    console.error('Message signing error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    throw new Error('Gagal sign message: ' + error.message);
   }
 };
 
-/**
- * Authenticate with backend using Keplr signature
- */
 export const authenticateWithBackend = async (walletAddress) => {
   try {
     const timestamp = new Date().toISOString();
-    const signedMessage = JSON.stringify({
-      timestamp,
-      nonce: Math.random().toString(36).substring(7),
-      message: 'Signing in to Lelang Auction Platform'
-    });
+    const nonce = Math.random().toString(36).substring(7);
+    const message = 'Authenticate with Lelang Blockchain\nWallet: ' + walletAddress + '\nTimestamp: ' + timestamp + '\nNonce: ' + nonce;
 
-    const signResult = await signMessageWithKeplr(signedMessage, walletAddress);
-    
-    if (!signResult.success) {
-      throw new Error(signResult.error);
-    }
+    const { signature, pub_key } = await signMessageWithKeplr(message, walletAddress);
 
-    // Send to backend for verification
     const response = await axios.post(
-      `${API_URL}/auth/verify`,
-      {},
+      API_URL + '/auth/verify',
       {
-        headers: {
-          'X-Wallet-Address': walletAddress,
-          'X-Signature': signResult.signature,
-          'X-Signed-Message': signedMessage
-        }
+        wallet_address: walletAddress,
+        message: message,
+        signature: typeof signature === 'object' ? signature.signature : signature,
+        public_key: pub_key
       }
     );
 
-    if (response.data.success) {
-      const jwtToken = response.data?.data?.token || response.headers['x-auth-token'];
-      
-      // Store JWT token
-      localStorage.setItem('authToken', jwtToken);
-      localStorage.setItem('walletAddress', walletAddress);
-      
-      return {
-        success: true,
-        token: jwtToken,
-        user: response.data.user
-      };
-    } else {
-      throw new Error(response.data.message);
+    if (!response.data.success) {
+      throw new Error(response.data.message || 'Authentication failed');
     }
+
+    const token = (response.data.data && response.data.data.token) || response.data.token || response.headers['x-auth-token'];
+
+    if (!token) {
+      throw new Error('No authentication token received');
+    }
+
+    localStorage.setItem('authToken', token);
+    localStorage.setItem('walletAddress', walletAddress);
+
+    return { success: true, token: token, user: response.data.user };
   } catch (error) {
     console.error('Backend authentication error:', error);
-    return {
-      success: false,
-      error: error.message
-    };
+    return { success: false, error: error.message };
   }
 };
 
-/**
- * Get stored JWT token
- */
-export const getAuthToken = () => {
-  return localStorage.getItem('authToken');
-};
-
-/**
- * Get stored wallet address
- */
-export const getStoredWalletAddress = () => {
-  return localStorage.getItem('walletAddress');
-};
-
-/**
- * Clear authentication
- */
+export const getAuthToken = () => localStorage.getItem('authToken');
+export const getStoredWalletAddress = () => localStorage.getItem('walletAddress');
 export const logout = () => {
   localStorage.removeItem('authToken');
   localStorage.removeItem('walletAddress');
 };
-
-/**
- * Create API client with auth header
- */
 export const createAuthenticatedApiClient = () => {
   const token = getAuthToken();
-  
   return axios.create({
     baseURL: API_URL,
     headers: {
       'Content-Type': 'application/json',
-      ...(token && { 'Authorization': `Bearer ${token}` })
+      ...(token && { 'Authorization': 'Bearer ' + token })
     }
   });
 };
-
-/**
- * Check if user is authenticated
- */
-export const isAuthenticated = () => {
-  return !!getAuthToken() && !!getStoredWalletAddress();
-};
+export const isAuthenticated = () => !!getAuthToken() && !!getStoredWalletAddress();

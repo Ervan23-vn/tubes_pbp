@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AlertCircle } from 'lucide-react';
-import { auctionsAPI, uploadAPI } from '../utils/api';
+import { auctionsAPI, uploadAPI, getImageUrl } from '../utils/api';
 
 /**
  * Create Auction Page
@@ -189,7 +189,7 @@ export default function CreateAuction() {
             />
             {imagePreview && (
               <img
-                src={imagePreview}
+                src={getImageUrl(imagePreview)}
                 alt="Preview"
                 className="w-20 h-20 rounded object-cover"
               />
