@@ -72,7 +72,7 @@ router.post('/auctions', requireAuth, auctionController.createAuction);
 router.get('/auctions/seller/me', requireAuth, auctionController.getAuctionsBySellerAddress);
 
 // PUT /api/auctions/:item_id/status - Update auction status (seller only)
-router.put('/api/auctions/:item_id/status', requireAuth, auctionController.updateAuctionStatus);
+router.put('/auctions/:item_id/status', requireAuth, auctionController.updateAuctionStatus);
 
 // POST /api/auctions/:item_id/reveal - Reveal bid amount and salt key
 router.post('/auctions/:item_id/reveal', requireAuth, auctionController.revealBid);
