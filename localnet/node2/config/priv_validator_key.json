@@ -1,4 +1,5 @@
 {
+<<<<<<< HEAD
   "address": "FE3611D9904F814FEA7C23FB71593974BC0B5317",
   "pub_key": {
     "type": "tendermint/PubKeyEd25519",
@@ -7,5 +8,15 @@
   "priv_key": {
     "type": "tendermint/PrivKeyEd25519",
     "value": "HM2c44wEQ6LoID4ocTt7hc5nVJvnEWVeWWc/qc3HGPKHsaapd8bX+onU/ERjPZ0gWUq5H66LA0EnSVxTcK2vsw=="
+=======
+  "address": "F25B68A1EAE887B5CD6B5906843D6785E31346BD",
+  "pub_key": {
+    "type": "tendermint/PubKeyEd25519",
+    "value": "XrnAJB04xdjup1O183jSSG/a8lyRbyBs1VasulWPiYk="
+  },
+  "priv_key": {
+    "type": "tendermint/PrivKeyEd25519",
+    "value": "nkaU+/kYf4da2J6oRFmDTw5ejG8ymkC3SmJbr00/cMdeucAkHTjF2O6nU7XzeNJIb9ryXJFvIGzVVqy6VY+JiQ=="
+>>>>>>> 8bc75eea410fd52896b675ad3df6ae4f6a501849
   }
 }
