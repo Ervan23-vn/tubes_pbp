@@ -3,6 +3,16 @@ import { useNavigate } from 'react-router-dom'
 import { getStoredWalletAddress } from '../utils/keplr'
 import { auctionsAPI, zkpAPI } from '../utils/api'
 
+// Helper to resolve image URL with Backend address if relative
+const getImageUrl = (url) => {
+  if (!url) return 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80';
+  if (url.startsWith('http://') || url.startsWith('https://') || url.startsWith('data:')) {
+    return url;
+  }
+  const cleanUrl = url.startsWith('/') ? url : '/' + url;
+  return `http://localhost:3001${cleanUrl}`;
+};
+
 // =============================================
 // COMPONENT
 // =============================================
@@ -36,7 +46,7 @@ export default function Marketplace() {
           const mapped = response.data.map(item => ({
             id: item.item_id,
             name: item.title,
-            image: item.image_url || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&w=800&q=80',
+            image: getImageUrl(item.image_url),
             type: item.category || 'Core Data',
             endTime: item.end_time,
             timeLeft: formatTimeLeft(item.end_time),

@@ -1,22 +1,11 @@
 {
-<<<<<<< HEAD
-  "address": "89DCB4B5F91242AC8AC300780702A1759659A050",
+  "address": "1377DF7276B99BEBB83EC3BA139D714A3E7C7E2E",
   "pub_key": {
     "type": "tendermint/PubKeyEd25519",
-    "value": "ct8aTalKFwaoFRY7gDEEkwa4u0ytbMWxMJOb5xvRwjA="
+    "value": "ihK5tVmvKlKNn5OmEFRKoxCJdwZ52fBKq2jfTygtN7Q="
   },
   "priv_key": {
     "type": "tendermint/PrivKeyEd25519",
-    "value": "puap3rNWvJxLwuBvyM9EV3AzHSBv35WCXKFjt5YSrqly3xpNqUoXBqgVFjuAMQSTBri7TK1sxbEwk5vnG9HCMA=="
-=======
-  "address": "5552820314A907D579D995810004561A4DB61943",
-  "pub_key": {
-    "type": "tendermint/PubKeyEd25519",
-    "value": "Ihk4nahY5Vgz/tpwIZ3av4uo7Qgr4g7eP4cVbY8hW4s="
-  },
-  "priv_key": {
-    "type": "tendermint/PrivKeyEd25519",
-    "value": "N7Q2nUPoSoidl0O9R9CSH9iWEltLuiurE7hDpkwrhksiGTidqFjlWDP+2nAhndq/i6jtCCviDt4/hxVtjyFbiw=="
->>>>>>> 8bc75eea410fd52896b675ad3df6ae4f6a501849
+    "value": "J26uRJDmjOXBYlv+gKeHQYnscRN/B7sBkyTmAjKQfwOKErm1Wa8qUo2fk6YQVEqjEIl3BnnZ8EqraN9PKC03tA=="
   }
 }

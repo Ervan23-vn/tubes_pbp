@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import { useState, useEffect } from 'react'
 import { useParams, useNavigate } from 'react-router-dom'
 import { auctionsAPI, zkpAPI } from '../utils/api'
@@ -183,7 +182,7 @@ export default function AuctionDetail() {
                   ? 'bg-green-50 text-green-700 border border-green-200'
                   : 'bg-gray-100 text-gray-600 border border-gray-200'
               }`}>
-                {auction.auction_status === 'active' ? '🟢 Aktif' : '⏹️ Selesai'}
+                {auction.auction_status === 'active' ? '🟢 KONDISI AKTIF' : '⏹️ SELESAI'}
               </span>
             </div>
 
@@ -343,13 +342,3 @@ export default function AuctionDetail() {
     </div>
   )
 }
-=======
-export default function AuctionDetail() {
-  return (
-    <div className="p-8 text-center bg-white rounded-xl shadow border border-gray-100 space-y-4">
-      <h2 className="text-xl font-bold text-gray-800">🔍 Detail Lelang</h2>
-      <p className="text-gray-500">Halaman ini sedang menunggu file kode baru dari Anda.</p>
-    </div>
-  )
-}
->>>>>>> Stashed changes
