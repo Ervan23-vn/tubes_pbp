@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd /mnt/d/TUGAS\ BESAR\ LELANG\ BLOCKHAIN
+cd "/home/dendifathur/LELANG TERDEMINT BFT/tubes_pbp"
 chmod +x ./lelangd
 
 pkill -f './lelangd start --home ./localnet/node' || true
@@ -22,18 +22,18 @@ done
 
 for i in 0 1 2 3; do
   addr=$(./lelangd keys show "node$i" -a --keyring-backend test --home "./localnet/node$i")
-  ./lelangd genesis add-genesis-account "$addr" 100000000000stake --home ./localnet/node0
+  ./lelangd genesis add-genesis-account "$addr" 100000000000ulct --home ./localnet/node0
   if [ "$i" -ne 0 ]; then
-    ./lelangd genesis add-genesis-account "$addr" 100000000000stake --home "./localnet/node$i"
+    ./lelangd genesis add-genesis-account "$addr" 100000000000ulct --home "./localnet/node$i"
   fi
  done
 
 mkdir -p ./localnet/node0/config/gentx ./localnet/node1/config/gentx ./localnet/node2/config/gentx ./localnet/node3/config/gentx
 
-./lelangd genesis gentx node0 40000000000stake --moniker PenyelenggaraLelang --ip 127.0.0.1 --p2p-port 26606 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node0 --output-document ./localnet/node0/config/gentx/gentx-node0.json
-./lelangd genesis gentx node1 10000000000stake --moniker AuditorIndependen --ip 127.0.0.1 --p2p-port 26616 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node1 --output-document ./localnet/node1/config/gentx/gentx-node1.json
-./lelangd genesis gentx node2 30000000000stake --moniker BankEscrow --ip 127.0.0.1 --p2p-port 26626 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node2 --output-document ./localnet/node2/config/gentx/gentx-node2.json
-./lelangd genesis gentx node3 20000000000stake --moniker RegulatorPengawas --ip 127.0.0.1 --p2p-port 26636 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node3 --output-document ./localnet/node3/config/gentx/gentx-node3.json
+./lelangd genesis gentx node0 40000000000ulct --moniker PenyelenggaraLelang --ip 127.0.0.1 --p2p-port 26606 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node0 --output-document ./localnet/node0/config/gentx/gentx-node0.json
+./lelangd genesis gentx node1 10000000000ulct --moniker AuditorIndependen --ip 127.0.0.1 --p2p-port 26616 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node1 --output-document ./localnet/node1/config/gentx/gentx-node1.json
+./lelangd genesis gentx node2 30000000000ulct --moniker BankEscrow --ip 127.0.0.1 --p2p-port 26626 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node2 --output-document ./localnet/node2/config/gentx/gentx-node2.json
+./lelangd genesis gentx node3 20000000000ulct --moniker RegulatorPengawas --ip 127.0.0.1 --p2p-port 26636 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node3 --output-document ./localnet/node3/config/gentx/gentx-node3.json
 
 cp ./localnet/node1/config/gentx/*.json ./localnet/node0/config/gentx/ || true
 cp ./localnet/node2/config/gentx/*.json ./localnet/node0/config/gentx/ || true
@@ -72,7 +72,7 @@ for i in 0 1 2 3; do
     sed -i "s|address = \"localhost:9090\"|address = \"localhost:91${i}0\"|g" "$APP_PATH" || true
     sed -i "s|address = \"localhost:9091\"|address = \"localhost:91${i}1\"|g" "$APP_PATH" || true
     sed -i "/\[api\]/,/enable/ s/enable = false/enable = true/" "$APP_PATH" || true
-    sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0stake"|g' "$APP_PATH" || true
+    sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0ulct"|g' "$APP_PATH" || true
   fi
 done
 

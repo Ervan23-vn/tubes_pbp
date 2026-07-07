@@ -1,7 +1,7 @@
 {
   "app_name": "\u003cappd\u003e",
   "app_version": "",
-  "genesis_time": "2026-07-07T08:52:12.507961496Z",
+  "genesis_time": "2026-07-07T15:07:51.176128682Z",
   "chain_id": "lelangchain",
   "initial_height": 1,
   "app_hash": null,
@@ -19,28 +19,28 @@
       "accounts": [
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "cosmos1hstup8ma4rsktas6tdyjchu26lrlggelm6a9e5",
+          "address": "cosmos1s77ndsx88slrvyzqpd7933nugwz9d882sm86fy",
           "pub_key": null,
           "account_number": "0",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "cosmos1trcxqywl2u0uzmegyyulcu7hztrw82ewmk640d",
+          "address": "cosmos1n4rrlm508k3c8p5fyazlwqeuqmvlgkg4pmk4e7",
           "pub_key": null,
           "account_number": "1",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "cosmos15vj7vyu4ncnhxxyvdgkh4c3awvywpvhctqnh00",
+          "address": "cosmos1amhj50m8vs5ln6a7wdm0ruey44xr0vvfy4svwu",
           "pub_key": null,
           "account_number": "2",
           "sequence": "0"
         },
         {
           "@type": "/cosmos.auth.v1beta1.BaseAccount",
-          "address": "cosmos10h9fsjgwnykczma7ahy5zenmwz45gr0dkr92w3",
+          "address": "cosmos1hgajec446q68gflg4tu9kg2vcf5uvt2jqupx8u",
           "pub_key": null,
           "account_number": "3",
           "sequence": "0"
@@ -57,37 +57,37 @@
       },
       "balances": [
         {
-          "address": "cosmos1trcxqywl2u0uzmegyyulcu7hztrw82ewmk640d",
+          "address": "cosmos1s77ndsx88slrvyzqpd7933nugwz9d882sm86fy",
           "coins": [
             {
-              "denom": "stake",
+              "denom": "ulct",
               "amount": "100000000000"
             }
           ]
         },
         {
-          "address": "cosmos10h9fsjgwnykczma7ahy5zenmwz45gr0dkr92w3",
+          "address": "cosmos1n4rrlm508k3c8p5fyazlwqeuqmvlgkg4pmk4e7",
           "coins": [
             {
-              "denom": "stake",
+              "denom": "ulct",
               "amount": "100000000000"
             }
           ]
         },
         {
-          "address": "cosmos15vj7vyu4ncnhxxyvdgkh4c3awvywpvhctqnh00",
+          "address": "cosmos1hgajec446q68gflg4tu9kg2vcf5uvt2jqupx8u",
           "coins": [
             {
-              "denom": "stake",
+              "denom": "ulct",
               "amount": "100000000000"
             }
           ]
         },
         {
-          "address": "cosmos1hstup8ma4rsktas6tdyjchu26lrlggelm6a9e5",
+          "address": "cosmos1amhj50m8vs5ln6a7wdm0ruey44xr0vvfy4svwu",
           "coins": [
             {
-              "denom": "stake",
+              "denom": "ulct",
               "amount": "100000000000"
             }
           ]
@@ -95,7 +95,7 @@
       ],
       "supply": [
         {
-          "denom": "stake",
+          "denom": "ulct",
           "amount": "400000000000"
         }
       ],
@@ -193,18 +193,18 @@
                 },
                 "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "cosmosvaloper1hstup8ma4rsktas6tdyjchu26lrlggel7wfs48",
+                "validator_address": "cosmosvaloper1s77ndsx88slrvyzqpd7933nugwz9d88240n09h",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "hI9Pd7OVzfWhs2wr8h9nrhf8vS1wqqzGFoPxsqPk6zQ="
+                  "key": "evNGLA24PH4/gYsf/61aLjefM0hDFnvMHrGX6Wtbjcc="
                 },
                 "value": {
-                  "denom": "stake",
+                  "denom": "ulct",
                   "amount": "40000000000"
                 }
               }
             ],
-            "memo": "d55b29b92e96262d2637b7651a438735ebbcae4a@127.0.0.1:26606",
+            "memo": "24c61f5168726d1f8988680d0f25e231314c6e88@127.0.0.1:26606",
             "timeout_height": "0",
             "unordered": false,
             "timeout_timestamp": null,
@@ -216,7 +216,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "AmBZdOlLDP2JAw1ULW461iOmNesZ5n3lPbqcx3UR509N"
+                  "key": "Aq0GE5RKC8L5BbFXHMWNa7JfDlo55ZWYc+XK/r8Zrz4w"
                 },
                 "mode_info": {
                   "single": {
@@ -235,7 +235,7 @@
             "tip": null
           },
           "signatures": [
-            "l9yILBhrZyrWDDLeqAULwJAkhI4gkRgX/1gMFlhs1A53pP4eve+dEE2Utyo/dJ68BgMs13HnXmajdKXYTsRrMQ=="
+            "w1YwaLfoOuN2W91ZEcZxKWJrxYs5wvE7SQYLonrrSZoxWRyoTaxpHg+IrA0ezdyLsqoHK2/gvMi8gp8YFQNXAg=="
           ]
         },
         {
@@ -257,18 +257,18 @@
                 },
                 "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "cosmosvaloper1trcxqywl2u0uzmegyyulcu7hztrw82ew7zwqr7",
+                "validator_address": "cosmosvaloper1n4rrlm508k3c8p5fyazlwqeuqmvlgkg4y0zq4d",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "k5EHr2X7CxWGUxJnUP01odUzAJ/ri0h/b1rvS7lXHp8="
+                  "key": "oYdxBHyxbh5CrSyuw4JKAvxKHx0Nm4m9p3tJzERxAKc="
                 },
                 "value": {
-                  "denom": "stake",
+                  "denom": "ulct",
                   "amount": "10000000000"
                 }
               }
             ],
-            "memo": "d59c6d04cf4bf5f5b2a505fbdc716911c1ca11b9@127.0.0.1:26616",
+            "memo": "548573a9f182c3331cc6074575fb88143333c6c5@127.0.0.1:26616",
             "timeout_height": "0",
             "unordered": false,
             "timeout_timestamp": null,
@@ -280,7 +280,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "A5NDwWY3B7SzYEIsGbyYJxY4/lJW14cL+nbq1LlBgr9V"
+                  "key": "AgBoJWMXFtPYMT0fmObW8ec9D8G5RhGJ0a0EGI1RYEpr"
                 },
                 "mode_info": {
                   "single": {
@@ -299,7 +299,7 @@
             "tip": null
           },
           "signatures": [
-            "IY6DvHi+lFj3DTWvEnUclZNzro9CH1PgL05RxsgPeRkDf8qYGrkaXLwxZ70IudqVadpdeOLWtLgXJ0MNIRCDLg=="
+            "57VFz59R3YOO21w5nZxRYZTlH0LIPJRZSZEOxDGVNi5O365Hq1NOU/No8oGHpuzFKtqAKH7QLC7xBzrkLBAc7w=="
           ]
         },
         {
@@ -321,18 +321,18 @@
                 },
                 "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "cosmosvaloper15vj7vyu4ncnhxxyvdgkh4c3awvywpvhcw58zru",
+                "validator_address": "cosmosvaloper1amhj50m8vs5ln6a7wdm0ruey44xr0vvfppyez0",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "B4b/bBoAJk3RcpwgVXDvBaMEiWSFXPfkPi61sEN5zJs="
+                  "key": "XrnAJB04xdjup1O183jSSG/a8lyRbyBs1VasulWPiYk="
                 },
                 "value": {
-                  "denom": "stake",
+                  "denom": "ulct",
                   "amount": "30000000000"
                 }
               }
             ],
-            "memo": "794bd52437fb0374e4ad1d7217e350aaba52d0fe@127.0.0.1:26626",
+            "memo": "af859a3f59780d36c9a01a637907cdbb672c052b@127.0.0.1:26626",
             "timeout_height": "0",
             "unordered": false,
             "timeout_timestamp": null,
@@ -344,7 +344,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "AlzuvqzSMMofLBm1sPERfkyzT8rXBUL/YmW3OIAp+E/1"
+                  "key": "Ap2xYXTFjrMn1Jn7e4t7476eHgthDqqkxUZm0A6ycqZR"
                 },
                 "mode_info": {
                   "single": {
@@ -363,7 +363,7 @@
             "tip": null
           },
           "signatures": [
-            "ohGITQC9SKO8j/IpO+IS82mzYkJYFhC9sd8QDIXZxj1Z9KGNuDHcTQJCXfLJGDHP6HCUzQ4mo44COdnSbhiUEg=="
+            "P4vUevDABoVKGL7rJGxidqPAAbe2DW8KXN3Oj+N+O60rnfCARLBJCZQxutuOiEmp7aTlx19f2UGrJEdffw+xAA=="
           ]
         },
         {
@@ -385,18 +385,18 @@
                 },
                 "min_self_delegation": "1",
                 "delegator_address": "",
-                "validator_address": "cosmosvaloper10h9fsjgwnykczma7ahy5zenmwz45gr0dnh3lzz",
+                "validator_address": "cosmosvaloper1hgajec446q68gflg4tu9kg2vcf5uvt2j9g4nt0",
                 "pubkey": {
                   "@type": "/cosmos.crypto.ed25519.PubKey",
-                  "key": "QdFP6iVdqGhh/9Bz+OJbLj6Umkmxh0p3uEcxbb6vM3Q="
+                  "key": "Ihk4nahY5Vgz/tpwIZ3av4uo7Qgr4g7eP4cVbY8hW4s="
                 },
                 "value": {
-                  "denom": "stake",
+                  "denom": "ulct",
                   "amount": "20000000000"
                 }
               }
             ],
-            "memo": "31c5b2ca33f5a6c4d270c645badf0d8eb518bced@127.0.0.1:26636",
+            "memo": "3500e86b47e89fbcc7e016af4d387c5e054e3e34@127.0.0.1:26636",
             "timeout_height": "0",
             "unordered": false,
             "timeout_timestamp": null,
@@ -408,7 +408,7 @@
               {
                 "public_key": {
                   "@type": "/cosmos.crypto.secp256k1.PubKey",
-                  "key": "Ay2F0wxU1jDLvRRqn26o1r0upKyqnhcV/IwR2CR5JG6q"
+                  "key": "AsvCzdISjJ3FlSm+GIjpzvHBDTaF6PAMUqFqfEGBJ0rM"
                 },
                 "mode_info": {
                   "single": {
@@ -427,7 +427,7 @@
             "tip": null
           },
           "signatures": [
-            "O07lx1bCjSr0yvqI/iB29F8jZ68BSkkvNdc4Qwl+AfYo3vIAamOwhdqjohEAxgt1QdgysG2d75Ljjj67aX0EHw=="
+            "KkKQ+BH2GjsAo3UJYC9sBJRD4uWYLAsx0nygrlOhoz0e9x5o7dadTpXAiTWf0srleBsvXhysQrXqUuiOix7vVg=="
           ]
         }
       ]
@@ -443,7 +443,7 @@
       "params": {
         "min_deposit": [
           {
-            "denom": "stake",
+            "denom": "ulct",
             "amount": "10000000"
           }
         ],
@@ -459,7 +459,7 @@
         "expedited_threshold": "0.667000000000000000",
         "expedited_min_deposit": [
           {
-            "denom": "stake",
+            "denom": "ulct",
             "amount": "50000000"
           }
         ],
@@ -543,16 +543,13 @@
         }
       }
     },
-    "lelang": {
-      "params": {}
-    },
     "mint": {
       "minter": {
         "inflation": "0.130000000000000000",
         "annual_provisions": "0.000000000000000000"
       },
       "params": {
-        "mint_denom": "stake",
+        "mint_denom": "ulct",
         "inflation_rate_change": "0.130000000000000000",
         "inflation_max": "0.200000000000000000",
         "inflation_min": "0.070000000000000000",
@@ -583,7 +580,7 @@
         "max_validators": 100,
         "max_entries": 7,
         "historical_entries": 10000,
-        "bond_denom": "stake",
+        "bond_denom": "ulct",
         "min_commission_rate": "0.000000000000000000"
       },
       "last_total_power": "0",

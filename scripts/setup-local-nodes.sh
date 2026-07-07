@@ -1,3 +1,4 @@
+
 #!/bin/bash
 set -e
 
@@ -34,25 +35,25 @@ echo "Node 3 (RegulatorPengawas): $addr3"
 
 # Allocate coins in genesis for all nodes on Node 0
 echo "=== Adding Genesis Accounts ==="
-./lelangd genesis add-genesis-account "$addr0" 100000000000stake --home ./localnet/node0
-./lelangd genesis add-genesis-account "$addr1" 100000000000stake --home ./localnet/node0
-./lelangd genesis add-genesis-account "$addr2" 100000000000stake --home ./localnet/node0
-./lelangd genesis add-genesis-account "$addr3" 100000000000stake --home ./localnet/node0
-./lelangd genesis add-genesis-account "$addr1" 100000000000stake --home ./localnet/node1
-./lelangd genesis add-genesis-account "$addr2" 100000000000stake --home ./localnet/node2
-./lelangd genesis add-genesis-account "$addr3" 100000000000stake --home ./localnet/node3
+./lelangd genesis add-genesis-account "$addr0" 100000000000ulct --home ./localnet/node0
+./lelangd genesis add-genesis-account "$addr1" 100000000000ulct --home ./localnet/node0
+./lelangd genesis add-genesis-account "$addr2" 100000000000ulct --home ./localnet/node0
+./lelangd genesis add-genesis-account "$addr3" 100000000000ulct --home ./localnet/node0
+./lelangd genesis add-genesis-account "$addr1" 100000000000ulct --home ./localnet/node1
+./lelangd genesis add-genesis-account "$addr2" 100000000000ulct --home ./localnet/node2
+./lelangd genesis add-genesis-account "$addr3" 100000000000ulct --home ./localnet/node3
 
 # Proportional voting powers via gentx delegations:
-# Node 0 (PenyelenggaraLelang): 40% (40,000,000,000 stake)
-# Node 1 (AuditorIndependen): 10% (10,000,000,000 stake)
-# Node 2 (BankEscrow): 30% (30,000,000,000 stake)
-# Node 3 (RegulatorPengawas): 20% (20,000,000,000 stake)
+# Node 0 (PenyelenggaraLelang): 40% (40,000,000,000 ulct)
+# Node 1 (AuditorIndependen): 10% (10,000,000,000 ulct)
+# Node 2 (BankEscrow): 30% (30,000,000,000 ulct)
+# Node 3 (RegulatorPengawas): 20% (20,000,000,000 ulct)
 echo "=== Generating Genesis Transactions (gentx) ==="
 mkdir -p ./localnet/node0/config/gentx ./localnet/node1/config/gentx ./localnet/node2/config/gentx ./localnet/node3/config/gentx
-./lelangd genesis gentx node0 40000000000stake --moniker PenyelenggaraLelang --ip 127.0.0.1 --p2p-port 26606 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node0 --output-document ./localnet/node0/config/gentx/gentx-node0.json
-./lelangd genesis gentx node1 10000000000stake --moniker AuditorIndependen --ip 127.0.0.1 --p2p-port 26616 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node1 --output-document ./localnet/node1/config/gentx/gentx-node1.json
-./lelangd genesis gentx node2 30000000000stake --moniker BankEscrow --ip 127.0.0.1 --p2p-port 26626 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node2 --output-document ./localnet/node2/config/gentx/gentx-node2.json
-./lelangd genesis gentx node3 20000000000stake --moniker RegulatorPengawas --ip 127.0.0.1 --p2p-port 26636 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node3 --output-document ./localnet/node3/config/gentx/gentx-node3.json
+./lelangd genesis gentx node0 40000000000ulct --moniker PenyelenggaraLelang --ip 127.0.0.1 --p2p-port 26606 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node0 --output-document ./localnet/node0/config/gentx/gentx-node0.json
+./lelangd genesis gentx node1 10000000000ulct --moniker AuditorIndependen --ip 127.0.0.1 --p2p-port 26616 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node1 --output-document ./localnet/node1/config/gentx/gentx-node1.json
+./lelangd genesis gentx node2 30000000000ulct --moniker BankEscrow --ip 127.0.0.1 --p2p-port 26626 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node2 --output-document ./localnet/node2/config/gentx/gentx-node2.json
+./lelangd genesis gentx node3 20000000000ulct --moniker RegulatorPengawas --ip 127.0.0.1 --p2p-port 26636 --keyring-backend test --chain-id "$chain_id" --home ./localnet/node3 --output-document ./localnet/node3/config/gentx/gentx-node3.json
 
 echo "=== Collecting gentxs ==="
 cp ./localnet/node1/config/gentx/*.json ./localnet/node0/config/gentx/ || true
@@ -99,7 +100,7 @@ for i in {0..3}; do
     sed -i "s|address = \"tcp://localhost:1317\"|address = \"tcp://localhost:13${i}7\"|g" "$APP_PATH"
     sed -i "s|address = \"localhost:9090\"|address = \"localhost:91${i}0\"|g" "$APP_PATH"
     sed -i "s|address = \"localhost:9091\"|address = \"localhost:91${i}1\"|g" "$APP_PATH"
-    sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0stake"|g' "$APP_PATH"
+    sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0ulct"|g' "$APP_PATH"
     
     # Enable API
     sed -i '/\[api\]/,/enable/ s/enable = false/enable = true/' "$APP_PATH"
