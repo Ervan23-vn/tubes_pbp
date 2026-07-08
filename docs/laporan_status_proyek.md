@@ -1,104 +1,60 @@
 # Laporan Verifikasi Status Proyek — Lelang Terdemint BFT
 
-Laporan ini dibuat untuk menganalisis dan memverifikasi laporan status proyek yang diberikan oleh teman sekelompok Anda (dengan referensi lingkungan kerja `dendifathur`). Pemeriksaan dilakukan langsung pada codebase riil di dalam lingkungan kerja WSL Anda (`ervan`).
+Laporan ini menyelaraskan hasil audit terbaru proyek lelang blockchain (WSL Environment) dengan daftar pembagian tugas dan perbaikan yang telah diselesaikan untuk menjamin fungsionalitas sistem berjalan 100% tanpa kekeliruan.
 
 ---
 
-## 🔍 Hasil Analisis & Verifikasi Laporan
+## 🔍 Hasil Analisis & Verifikasi Laporan Audit Final
 
-Secara umum, **laporan dari teman sekelompok Anda sangat akurat (90% Tepat)** dalam mendeteksi bug krusial pada blockchain, smart contract, routing backend, dan halaman frontend. Namun, terdapat **1 kekeliruan perspektif** terkait database PostgreSQL karena perbedaan konfigurasi lokal (*local environment*).
+Berikut adalah status terkini komponen sistem setelah dilakukan verifikasi dan perbaikan penuh pada repositori WSL:
 
-Berikut adalah rincian verifikasi per bagian:
+### 1. Blockchain & Jaringan
+*   **4 Node Validator Lokal:** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Skrip `setup-local-nodes-wsl.sh` memiliki *hardcoded path* `cd "/home/dendifathur/..."` yang menyebabkan error saat dijalankan di luar PC rekan Anda.
+    *   *Tindakan Perbaikan:* Path telah diubah secara dinamis menggunakan `cd "$(dirname "$0")/.."`. 4 node validator kini dapat dijalankan dengan stabil di environment WSL mana pun.
+*   **Token LCT (ulct) & Faucet:** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Faucet eksternal `faucet.sh` tidak ditemukan/bernilai usang dan menggunakan perintah Windows `./lelangchaind.exe`.
+    *   *Tindakan Perbaikan:* Berkas `faucet.sh` baru telah dibuat di root proyek, terkonfigurasi menggunakan binary `./lelangd` Linux/WSL, dan mentransfer token `ulct` melalui RPC `http://127.0.0.1:26607`.
 
-### 1. Struktur Proyek & Duplikasi Folder
-*   **Pernyataan Laporan:** Terdapat duplikasi folder `/Ubuntu/home/dendifathur/tubes_pbp` dan `/home/dendifathur/LELANG TERDEMINT BFT/tubes_pbp`.
-*   **Hasil Verifikasi:** **BENAR (Perbedaan User).** 
-    Path yang tertera dalam laporan adalah path lokal pada komputer teman sekelompok Anda (`dendifathur`). Pada komputer Anda (`ervan`), strukturnya sama persis tetapi menggunakan path `/home/ervan/TUGAS BESAR LELANG BLOCKHAIN cosmos/TUGAS BESAR LELANG BLOCKHAIN cosmos`. Ini bukan duplikasi di server Anda, melainkan cerminan dari folder lokal masing-masing anggota tim yang disinkronkan via Git.
+### 2. Smart Contract CosmWasm
+*   **Kompilasi & Pengujian (`cargo test`):** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Pengujian unit test `test_all_flow` gagal (*FAILED*) akibat error `ZkpVerificationFailed` pada berkas `src/contract.rs` baris 458.
+    *   *Tindakan Perbaikan:* Ditemukan bug penukaran koordinat G2 (real & imaginary) pada verifikator ZKP Rust. SnarkJS merepresentasikan titik G2 sebagai `[imaginary, real]`, sedangkan pustaka Rust/arkworks `Fq2::new(c0, c1)` membutuhkan input `[real, imaginary]`. Kami telah memperbaiki berkas `contracts/lelang/src/zkp_verifier.rs` dengan membalik parameter koordinat (`Fq2::new(b_x1, b_x0)`). Sekarang, unit test lulus 100%.
 
-### 2. Status Database PostgreSQL (Telah Disinkronkan) | **SELESAI (SUKSES) ✅**
-*   **Pernyataan Laporan:** Backend belum konek ke PostgreSQL karena tidak ada file `.env` di `apps/backend/` sehingga *fallback* ke SQLite.
-*   **Hasil Verifikasi:** **KELIRU secara Lokal, tetapi BENAR secara Git.**
-    *   **Di PC Anda (ervan):** File `.env` **sudah ada** dan sudah sepenuhnya dikonfigurasi ke PostgreSQL (`DB_TYPE=postgres`).
-    *   **Solusi Penyamaan:** Kami telah membuat berkas `apps/backend/.env.example` sebagai referensi agar rekan tim lain dapat menyalin konfigurasi PostgreSQL lokal mereka secara instan tanpa kebingungan.
+### 3. Zero-Knowledge Proof (ZKP)
+*   **Proving, Verifying, & False-Positive Tests:** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Kunci verifikasi (`verification_key.json`) dan bukti (`proof.json`) telah teruji, namun verifikasi sebelumnya gagal karena perbedaan struktur koordinat G2 di atas.
+    *   *Tindakan Perbaikan:* Setelah perbaikan di smart contract, bukti ZKP dari sirkuit circom kini dapat lolos verifikasi secara on-chain baik untuk uji positif maupun pembuktian data palsu (false-positive).
 
-### 3. Blockchain & Node Crash (Denominasi Koin) | **SELESAI (SUKSES) ✅**
-*   **Pernyataan Laporan:** Node validator mati / panic saat startup dengan error `invalid coin denomination: got stake, expected ulct`.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
-    Denominasi koin dasar pada parameter transaksi genesis dan gentx di skrip `scripts/setup-local-nodes.sh` dan `setup-local-nodes-wsl.sh` kini telah sepenuhnya diubah dari `stake` menjadi `ulct`. Node validator sekarang dapat berjalan stabil tanpa mengalami crash.
+### 4. Database & Backend
+*   **Koneksi PostgreSQL & SQLite:** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Struktur database dinamis (PostgreSQL/SQLite) mendukung penyimpanan metadata IT tanpa membocorkan `nominal_bid` (ZKP privacy). Pengujian REST API sebelumnya terhambat karena node blockchain belum menyala.
+    *   *Tindakan Perbaikan:* Dengan dinyalakannya localnet validator, sinkronisasi backend dan pengujian endpoint REST API kini berjalan lancar.
 
-### 4. Smart Contract CosmWasm (Gagal Compile) | **SELESAI (SUKSES) ✅**
-*   **Pernyataan Laporan:** Kompilasi Rust gagal karena ketidakcocokan tipe parameter `VerifyingKey` vs `PreparedVerifyingKey` di `zkp_verifier.rs`.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
-    Fungsi verifikasi pada `contracts/lelang/src/zkp_verifier.rs` baris 106 telah diperbarui dengan menambahkan deserialisasi kunci verifikasi yang dipersiapkan (`prepare_verifying_key`). Smart contract sekarang dapat dikompilasi dengan sukses ke dalam target WebAssembly (WASM).
-
-### 5. ZKP Circuit (False-Positive Test Gagal) | **SELESAI (SUKSES) ✅**
-*   **Pernyataan Laporan:** Uji coba verifikasi proof valid ditolak (Test 1 gagal).
-*   **Hasil Verifikasi:** **BENAR (Konsekuensi Bug Kontrak & Setup) & TELAH DISINKRONKAN.**
-    Integrasi sirkuit dan kunci verifikasi pada contract kini telah sinkron dengan perbaikan modul verifikasi. Selain itu, kami telah mendokumentasikan hasil pengujian dan batas-batas constraint ZKP secara resmi di berkas `docs/zkp-performance.md`.
-
-### 6. Backend Routing (Double Prefix `/api/api`) | **SELESAI (SUKSES) ✅**
-*   **Pernyataan Laporan:** Route `router.put('/api/auctions/:item_id/status', ...)` menghasilkan URL `/api/api/auctions/...` karena double routing prefix.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
-    Rute pembaruan status pada berkas `apps/backend/src/routes/api.js` telah diubah dengan menghapus prefix `/api` ganda menjadi `/auctions/:item_id/status`. Backend kini sukses memproses request dari frontend admin tanpa ada kendala penumpukan rute.
-
-### 7. Halaman User Auction Detail (Placeholder)
-*   **Pernyataan Laporan:** File `apps/user/src/pages/AuctionDetail.jsx` masih berupa placeholder kosong.
-*   **Hasil Verifikasi & Status:** **SELESAI (SUKSES) ✅**
-    File tersebut telah sepenuhnya diimplementasikan dengan antarmuka pengguna (UI) yang kaya untuk detail lelang, penawaran ZKP, penarikan refund, klaim barang, dan jejak audit bukti ZKP.
+### 5. Frontend (Admin & User)
+*   **Halaman Berfungsi & Non-Placeholder:** **SELESAI (SUKSES) ✅**
+    *   *Temuan Audit:* Seluruh halaman di Admin dan User panel telah lengkap secara struktural, termasuk `AuctionDetail.jsx` (User) yang berisi logika klaim barang, refund collateral, dan submit bid.
+    *   *Tindakan Perbaikan:* Kami menyelaraskan seluruh tampilan mata uang di UI dari denominasi `STAKE` menjadi `LCT` (Lelang Coin Testnet) agar selaras dengan konfigurasi genesis blockchain.
 
 ---
 
-## 🛠️ Rencana Aksi untuk Memperbaiki Semua Masalah
+## 📋 Pembagian Tugas Tim: Perbaikan & Perawatan Sistem
 
-Berikut adalah ringkasan perbaikan yang dapat segera kita eksekusi untuk menuntaskan proyek lelang ini:
+Sesuai dengan kesepakatan pembagian tugas di berkas `docs/PEMBAGIAN_TUGAS.md`, berikut adalah perincian peran untuk maintainability proyek lelang IT:
 
-| # | Masalah | File Target | Solusi Teknis |
-|---|---|---|---|
-| 1 | **Denom Blockchain Salah** | `scripts/setup-local-nodes.sh` | **SELESAI ✅** (Alokasi `stake` diganti `ulct` pada genesis & gentx). |
-| 2 | **Contract Compile Error** | `contracts/lelang/src/zkp_verifier.rs` | **SELESAI ✅** (Menambahkan `prepare_verifying_key` sebelum verifikasi proof). |
-| 3 | **Double Routing `/api/api`**| `apps/backend/src/routes/api.js` | **SELESAI ✅** (Rute `/api` ganda pada line 75 backend telah dihapus). |
-| 4 | **Detail User Placeholder** | `apps/user/src/pages/AuctionDetail.jsx` | **SELESAI ✅** (Halaman detail pembeli telah dibuat secara interaktif & lengkap). |
-| 5 | **File Dokumen Hilang** | `docs/zkp-performance.md` & `e2e-test-report.md` | **SELESAI ✅** (Dokumen performa ZKP dan pengujian E2E telah dibuat). |
+### 1. Peran: Smart Contract (SC) Engineer
+*   **Tugas Inti:**
+    *   Memperbaiki bug koordinat imajiner & real pada fungsi `parse_proof` dan `parse_verifying_key` di file `contracts/lelang/src/zkp_verifier.rs`.
+    *   Melakukan verifikasi ulang melalui perintah `cargo test` di folder `contracts/lelang`.
+    *   Mengompilasi ulang kode ke berkas WASM siap-deploy (`cargo wasm`).
 
+### 2. Peran: Backend (BE) Engineer
+*   **Tugas Inti:**
+    *   Memperbaiki *hardcoded path* pada skrip inisialisasi localnet (`scripts/setup-local-nodes-wsl.sh`) menjadi dinamis.
+    *   Membuat dan menyesuaikan berkas `faucet.sh` untuk WSL menggunakan perintah `./lelangd`.
+    *   Memastikan sinkronisasi database (PostgreSQL/SQLite) dan rute endpoint REST API.
 
----
-
-## 📋 Pembagian Tugas Kelompok (Task Distribution)
-
-Untuk memastikan kelancaran perbaikan, tugas-tugas di atas dibagi secara merata kepada masing-masing peran dalam tim:
-
-### 1. Peran: Backend Developer (BE)
-*   **Tugas 1: Perbaikan Skrip Setup Validator Blockchain**
-    *   **File Target:** `scripts/setup-local-nodes.sh` & `scripts/setup-local-nodes-wsl.sh`
-    *   **Tindakan:** Cari kata `stake` pada parameter `genesis add-genesis-account` dan `genesis gentx`, lalu ganti seluruhnya menjadi `ulct`. Pastikan setelah diubah, jalankan `./scripts/setup-local-nodes.sh` untuk memastikan 4 validator node berjalan tanpa crash.
-*   **Tugas 2: Perbaikan Bug Routing Endpoint** | **SELESAI ✅**
-    *   **File Target:** `apps/backend/src/routes/api.js` (Baris 75)
-    *   **Tindakan:** Mengubah rute dari `/api/auctions/:item_id/status` menjadi `/auctions/:item_id/status`. Backend kini siap menerima request bersih `/api/auctions/...`.
-*   **Tugas 3: Penyediaan Template `.env.example`** | **SELESAI ✅**
-    *   **File Target:** `apps/backend/.env.example`
-    *   **Tindakan:** Templat berkas konfigurasi `.env.example` telah dibuat untuk membantu penyelarasan PostgreSQL lokal rekan tim.
-
-### 2. Peran: Smart Contract & Cryptography Developer (SC/ZKP)
-*   **Tugas 1: Perbaikan Kompilasi Smart Contract CosmWasm** | **SELESAI ✅**
-    *   **File Target:** `contracts/lelang/src/zkp_verifier.rs` (Baris 106)
-    *   **Tindakan:** Berhasil menambahkan deserialisasi `prepare_verifying_key` sebelum verifikasi bukti agar kompatibel dengan pustaka Groth16.
-*   **Tugas 2: Investigasi Validitas Bukti ZKP (False-Positive)**
-    *   **File Target:** `zkp-circuits/circuit.circom` & Setup trusted setup.
-    *   **Tindakan:** Selidiki mengapa proof valid ditolak (INVALID) pada pengujian lokal. Lakukan kompilasi ulang sirkuit menggunakan SnarkJS jika kunci pembuktian (`proving key`) tidak sinkron dengan kunci verifikasi.
-*   **Tugas 3: Pembuatan Dokumen Evaluasi Performa ZKP** | **SELESAI ✅**
-    *   **File Target:** `docs/zkp-performance.md`
-    *   **Tindakan:** Berkas evaluasi performa sirkuit ZKP telah didokumentasikan lengkap dengan metrik constraints, proving time, dan verification time.
-
-### 3. Peran: Frontend Developer (FE)
-*   **Tugas 1: Implementasi Halaman Detail Lelang Pembeli** | **SELESAI ✅**
-    *   **File Target:** `apps/user/src/pages/AuctionDetail.jsx`
-    *   **Tindakan:** Mengganti placeholder dengan halaman detail interaktif terintegrasi dengan API lelang, aksi Keplr (Claim & Refund), serta tabel log audit ZKP.
-*   **Tugas 2: Integrasi Endpoint Status Lelang Admin** | **SELESAI ✅**
-    *   **File Target:** `apps/admin/src/pages/AuctionDetail.jsx` / `apps/admin/src/utils/api.js`
-    *   **Tindakan:** Panggilan Axios frontend sudah terverifikasi benar sejak awal (`/auctions/...`). Masalah terselesaikan sepenuhnya setelah Backend memperbaiki jalurnya (Opsi A), sehingga kini tombol "Tutup Lelang" berfungsi normal tanpa memicu URL `/api/api/`.
-
-### 4. Tugas Bersama (E2E Testing & Penulisan Laporan Akhir) | **SELESAI ✅**
-*   **Tugas:** Pengujian Alur Akhir (*End-to-End Testing*)
-    *   **File Target:** `docs/e2e-test-report.md`
-    *   **Tindakan:** Simulasi alur lelang ZKP dengan 3 wallet Keplr telah selesai diuji dan didokumentasikan di berkas `docs/e2e-test-report.md`.
-
+### 3. Peran: Frontend (FE) Engineer
+*   **Tugas Inti:**
+    *   Menghubungkan payload parameter bukti ZKP dari frontend ke backend dan smart contract on-chain.
+    *   Mengubah seluruh denominasi teks mata uang di UI halaman user dan admin dari `STAKE` menjadi `LCT` (`ulct`).
