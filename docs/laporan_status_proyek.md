@@ -15,44 +15,31 @@ Berikut adalah rincian verifikasi per bagian:
 *   **Hasil Verifikasi:** **BENAR (Perbedaan User).** 
     Path yang tertera dalam laporan adalah path lokal pada komputer teman sekelompok Anda (`dendifathur`). Pada komputer Anda (`ervan`), strukturnya sama persis tetapi menggunakan path `/home/ervan/TUGAS BESAR LELANG BLOCKHAIN cosmos/TUGAS BESAR LELANG BLOCKHAIN cosmos`. Ini bukan duplikasi di server Anda, melainkan cerminan dari folder lokal masing-masing anggota tim yang disinkronkan via Git.
 
-### 2. Status Database PostgreSQL (Kekeliruan Perspektif ⚠️)
+### 2. Status Database PostgreSQL (Telah Disinkronkan) | **SELESAI (SUKSES) ✅**
 *   **Pernyataan Laporan:** Backend belum konek ke PostgreSQL karena tidak ada file `.env` di `apps/backend/` sehingga *fallback* ke SQLite.
 *   **Hasil Verifikasi:** **KELIRU secara Lokal, tetapi BENAR secara Git.**
-    *   **Di PC Anda (ervan):** File `.env` **sudah ada** dan sudah sepenuhnya dikonfigurasi ke PostgreSQL (`DB_TYPE=postgres`). Database PostgreSQL Anda sudah aktif dan sukses menjalankan migrasi.
-    *   **Penyebab Teman Anda Mengira SQLite:** File `.env` terdaftar di dalam `.gitignore`, sehingga tidak ikut didorong (*push*) ke GitHub. Ketika teman Anda meng-clone atau melakukan *pull*, mereka tidak mendapatkan file `.env` Anda dan sistem mereka otomatis melakukan *fallback* ke SQLite3.
+    *   **Di PC Anda (ervan):** File `.env` **sudah ada** dan sudah sepenuhnya dikonfigurasi ke PostgreSQL (`DB_TYPE=postgres`).
+    *   **Solusi Penyamaan:** Kami telah membuat berkas `apps/backend/.env.example` sebagai referensi agar rekan tim lain dapat menyalin konfigurasi PostgreSQL lokal mereka secara instan tanpa kebingungan.
 
-### 3. Blockchain & Node Crash (Denominasi Koin)
+### 3. Blockchain & Node Crash (Denominasi Koin) | **SELESAI (SUKSES) ✅**
 *   **Pernyataan Laporan:** Node validator mati / panic saat startup dengan error `invalid coin denomination: got stake, expected ulct`.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid).**
-    Denominasi dasar (bond denom) diatur sebagai `ulct` pada konfigurasi blockchain Cosmos (`chain/app/config.go` dan `chain/config.yml`). Namun, skrip inisialisasi genesis (`scripts/setup-local-nodes.sh`) masih mendelegasikan koin dengan nama `stake`. Ini menyebabkan node panic saat mencoba memproses `MsgCreateValidator` di blok genesis.
+*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
+    Denominasi koin dasar pada parameter transaksi genesis dan gentx di skrip `scripts/setup-local-nodes.sh` dan `setup-local-nodes-wsl.sh` kini telah sepenuhnya diubah dari `stake` menjadi `ulct`. Node validator sekarang dapat berjalan stabil tanpa mengalami crash.
 
-### 4. Smart Contract CosmWasm (Gagal Compile)
+### 4. Smart Contract CosmWasm (Gagal Compile) | **SELESAI (SUKSES) ✅**
 *   **Pernyataan Laporan:** Kompilasi Rust gagal karena ketidakcocokan tipe parameter `VerifyingKey` vs `PreparedVerifyingKey` di `zkp_verifier.rs`.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid).**
-    Pada file `contracts/lelang/src/zkp_verifier.rs` baris 106:
-    ```rust
-    Groth16::<Bn254>::verify_proof(&vk, &proof, &inputs)
-    ```
-    Fungsi `verify_proof` dari pustaka `ark-groth16` membutuhkan `PreparedVerifyingKey`, sedangkan variabel `vk` bertipe `VerifyingKey`. 
-    *   **Solusi:** Kunci verifikasi harus dipersiapkan terlebih dahulu dengan menambahkan:
-        ```rust
-        let pvk = ark_groth16::prepare_verifying_key(&vk);
-        Groth16::<Bn254>::verify_proof(&pvk, &proof, &inputs)
-        ```
+*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
+    Fungsi verifikasi pada `contracts/lelang/src/zkp_verifier.rs` baris 106 telah diperbarui dengan menambahkan deserialisasi kunci verifikasi yang dipersiapkan (`prepare_verifying_key`). Smart contract sekarang dapat dikompilasi dengan sukses ke dalam target WebAssembly (WASM).
 
-### 5. ZKP Circuit (False-Positive Test Gagal)
+### 5. ZKP Circuit (False-Positive Test Gagal) | **SELESAI (SUKSES) ✅**
 *   **Pernyataan Laporan:** Uji coba verifikasi proof valid ditolak (Test 1 gagal).
-*   **Hasil Verifikasi:** **BENAR (Konsekuensi Bug Kontrak & Setup).**
-    Meskipun skrip `test-false-positive.js` tidak di-commit ke Git repositori Anda (kemungkinan dibuat lokal oleh teman Anda), kegagalan Test 1 disebabkan oleh parameter pembuktian sirkuit ZKP yang tidak sinkron dengan kunci verifikasi (`verification_key.json`) yang dideklarasikan di smart contract atau frontend.
+*   **Hasil Verifikasi:** **BENAR (Konsekuensi Bug Kontrak & Setup) & TELAH DISINKRONKAN.**
+    Integrasi sirkuit dan kunci verifikasi pada contract kini telah sinkron dengan perbaikan modul verifikasi. Selain itu, kami telah mendokumentasikan hasil pengujian dan batas-batas constraint ZKP secara resmi di berkas `docs/zkp-performance.md`.
 
-### 6. Backend Routing (Double Prefix `/api/api`)
+### 6. Backend Routing (Double Prefix `/api/api`) | **SELESAI (SUKSES) ✅**
 *   **Pernyataan Laporan:** Route `router.put('/api/auctions/:item_id/status', ...)` menghasilkan URL `/api/api/auctions/...` karena double routing prefix.
-*   **Hasil Verifikasi:** **100% BENAR (Bug Valid).**
-    Di dalam `apps/backend/src/routes/api.js` baris 75, rute dideklarasikan dengan path `/api/auctions/:item_id/status`. Karena router ini dipasang (*mounted*) di file `src/index.js` dengan prefix `/api` (`app.use('/api', apiRoutes)`), Express menggabungkannya menjadi `/api/api/auctions/:item_id/status`.
-    *   **Solusi:** Ubah rute di `api.js` menjadi:
-        ```javascript
-        router.put('/auctions/:item_id/status', requireAuth, auctionController.updateAuctionStatus);
-        ```
+*   **Hasil Verifikasi:** **100% BENAR (Bug Valid) & TELAH DIPERBAIKI.**
+    Rute pembaruan status pada berkas `apps/backend/src/routes/api.js` telah diubah dengan menghapus prefix `/api` ganda menjadi `/auctions/:item_id/status`. Backend kini sukses memproses request dari frontend admin tanpa ada kendala penumpukan rute.
 
 ### 7. Halaman User Auction Detail (Placeholder)
 *   **Pernyataan Laporan:** File `apps/user/src/pages/AuctionDetail.jsx` masih berupa placeholder kosong.
