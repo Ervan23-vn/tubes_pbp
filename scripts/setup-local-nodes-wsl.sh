@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-cd "/home/dendifathur/LELANG TERDEMINT BFT/tubes_pbp"
+# Dynamically set working directory to project root relative to this script
+cd "$(dirname "$0")/.."
 chmod +x ./lelangd
 
 pkill -f './lelangd start --home ./localnet/node' || true
