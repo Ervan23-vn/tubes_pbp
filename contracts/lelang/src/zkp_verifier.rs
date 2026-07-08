@@ -103,7 +103,8 @@ pub fn verify_proof(
         inputs.push(input_fr);
     }
     
-    Groth16::<Bn254>::verify_proof(&vk, &proof, &inputs)
+    let pvk = ark_groth16::prepare_verifying_key(&vk);
+    Groth16::<Bn254>::verify_proof(&pvk, &proof, &inputs)
         .map_err(|e| format!("Verification error: {}", e))
 
 }
