@@ -1,24 +1,41 @@
 import { query } from '../config/database.js';
 import { v4 as uuidv4 } from 'uuid';
 import { ethers } from 'ethers';
+import { CATEGORIES, getAllSubcategories, ITEM_CONDITIONS } from '../config/categories.js';
 
 /**
  * Auction Controller - Handle all auction-related operations
+ * Fokus lelang barang elektronik bidang IT (Hardware & Software)
  * Note: NEVER store actual bid amounts (nominal_bid) in database
  */
 
 export async function getAllAuctions(req, res) {
   try {
-    const result = await query(
-      `SELECT id, item_id, title, description, category, image_url, 
-              thumbnail_url, starting_price, current_highest_bid, 
-              highest_bidder_address, auction_status, start_time, 
-              end_time, total_bids_count, created_at, updated_at
-       FROM auctions_metadata 
-       WHERE auction_status = 'active' OR auction_status = 'ended'
-       ORDER BY created_at DESC 
-       LIMIT 50`
-    );
+    const { main_category, sub_category } = req.query;
+
+    let sql = `SELECT id, item_id, title, description, main_category, sub_category,
+                item_condition, brand, specifications, warranty_info,
+                image_url, thumbnail_url, starting_price, current_highest_bid, 
+                highest_bidder_address, auction_status, start_time, 
+                end_time, total_bids_count, created_at, updated_at
+         FROM auctions_metadata 
+         WHERE (auction_status = 'active' OR auction_status = 'ended')`;
+    
+    const params = [];
+    let paramIndex = 1;
+
+    if (main_category) {
+      sql += ` AND main_category = $${paramIndex++}`;
+      params.push(main_category);
+    }
+    if (sub_category) {
+      sql += ` AND sub_category = $${paramIndex++}`;
+      params.push(sub_category);
+    }
+
+    sql += ` ORDER BY created_at DESC LIMIT 50`;
+
+    const result = await query(sql, params);
 
     res.json({
       success: true,
@@ -70,7 +87,12 @@ export async function createAuction(req, res) {
     const { 
       title, 
       description, 
-      category, 
+      main_category,
+      sub_category,
+      item_condition,
+      brand,
+      specifications,
+      warranty_info,
       starting_price, 
       start_time, 
       end_time,
@@ -89,6 +111,12 @@ export async function createAuction(req, res) {
       });
     }
 
+    // Validate category
+    const validMain = main_category && ['hardware', 'software'].includes(main_category);
+    const finalMainCategory = validMain ? main_category : 'hardware';
+    const finalSubCategory = sub_category || 'hw-pc-component';
+    const finalCondition = item_condition || 'new';
+
     // Ensure seller exists in users_profile
     await query(
       `INSERT INTO users_profile (wallet_address) 
@@ -97,20 +125,26 @@ export async function createAuction(req, res) {
       [sellerAddress]
     );
 
-    // Create auction
+    // Create auction with IT electronics fields
     const result = await query(
       `INSERT INTO auctions_metadata 
-       (item_id, seller_address, title, description, category, 
+       (item_id, seller_address, title, description, main_category, sub_category,
+        item_condition, brand, specifications, warranty_info,
         image_url, thumbnail_url, starting_price, 
         start_time, end_time, auction_status) 
-       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16)
        RETURNING *`,
       [
         itemId,
         sellerAddress,
         title,
         description,
-        category,
+        finalMainCategory,
+        finalSubCategory,
+        finalCondition,
+        brand || null,
+        specifications ? (typeof specifications === 'string' ? specifications : JSON.stringify(specifications)) : null,
+        warranty_info || null,
         image_url,
         thumbnail_url,
         starting_price,
@@ -130,6 +164,28 @@ export async function createAuction(req, res) {
     res.status(500).json({
       success: false,
       message: 'Failed to create auction',
+      error: error.message
+    });
+  }
+}
+
+/**
+ * GET /api/categories - Return available categories for frontend
+ */
+export async function getCategories(req, res) {
+  try {
+    res.json({
+      success: true,
+      data: {
+        categories: CATEGORIES,
+        conditions: ITEM_CONDITIONS,
+        all_subcategories: getAllSubcategories()
+      }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: 'Failed to fetch categories',
       error: error.message
     });
   }

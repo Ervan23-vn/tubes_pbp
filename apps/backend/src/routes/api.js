@@ -59,6 +59,9 @@ router.post('/auth/verify', authMiddleware, (req, res) => {
  * ============================================
  */
 
+// GET /api/categories - Get available IT electronics categories
+router.get('/categories', auctionController.getCategories);
+
 // GET /api/auctions - Get all active auctions
 router.get('/auctions', optionalAuth, auctionController.getAllAuctions);
 

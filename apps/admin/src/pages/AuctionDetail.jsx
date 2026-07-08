@@ -4,9 +4,16 @@ import { AlertCircle } from 'lucide-react';
 import { auctionsAPI, zkpAPI, getImageUrl } from '../utils/api';
 
 /**
- * Auction Detail Page
- * Lihat detail lelang dan tutup lelang
+ * Auction Detail Page (Admin / Seller Center)
+ * Detail lelang barang IT, spesifikasi teknis, brand, garansi, kondisi, dan ZKP audit.
  */
+
+const CONDITION_MAP = {
+  'new': { label: 'Baru / Sealed', color: 'text-emerald-700 bg-emerald-50 border-emerald-255' },
+  'like_new': { label: 'Bekas - Like New', color: 'text-blue-700 bg-blue-50 border-blue-255' },
+  'good': { label: 'Bekas - Baik', color: 'text-yellow-700 bg-yellow-50 border-yellow-255' },
+  'refurbished': { label: 'Refurbished', color: 'text-orange-700 bg-orange-50 border-orange-255' },
+};
 
 export default function AuctionDetail() {
   const { itemId } = useParams();
@@ -63,7 +70,7 @@ export default function AuctionDetail() {
       <div className="flex justify-center items-center h-64">
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading auction details...</p>
+          <p className="text-gray-650">Loading auction details...</p>
         </div>
       </div>
     );
@@ -77,17 +84,28 @@ export default function AuctionDetail() {
     );
   }
 
+  // Parse specifications JSON
+  let specs = {};
+  try {
+    specs = auction.specifications ? (typeof auction.specifications === 'string' ? JSON.parse(auction.specifications) : auction.specifications) : {};
+  } catch (e) {
+    console.error('Error parsing specs:', e);
+  }
+
+  const condInfo = CONDITION_MAP[auction.item_condition] || { label: auction.item_condition || 'New', color: 'text-gray-700 bg-gray-50' };
+
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">{auction.title}</h1>
-          <p className="text-gray-500 font-mono text-sm mt-2">{auction.item_id}</p>
+          <span className="text-xs font-semibold text-blue-600 uppercase tracking-wider">Seller Center / Detail Lelang IT</span>
+          <h1 className="text-3xl font-bold text-gray-800 mt-1">{auction.title}</h1>
+          <p className="text-gray-500 font-mono text-sm mt-1">{auction.item_id}</p>
         </div>
         <button
           onClick={() => navigate('/dashboard')}
-          className="text-gray-600 hover:text-gray-800"
+          className="text-gray-600 hover:text-gray-800 border px-3 py-1.5 rounded-lg text-sm bg-white"
         >
           ← Kembali
         </button>
@@ -107,17 +125,23 @@ export default function AuctionDetail() {
         </div>
       )}
 
-      {/* Main Content */}
+      {/* Main Content Grid */}
       <div className="grid grid-cols-3 gap-6">
         {/* Left Column - Image */}
         <div className="col-span-1">
           {auction.image_url && (
-            <div className="bg-white rounded-lg shadow overflow-hidden">
+            <div className="bg-white rounded-lg shadow overflow-hidden relative">
               <img
                 src={getImageUrl(auction.image_url)}
                 alt={auction.title}
                 className="w-full h-64 object-cover"
               />
+              <div className="absolute top-2 left-2 bg-white/95 px-2 py-0.5 rounded text-xs font-semibold text-gray-650 border uppercase">
+                {auction.main_category === 'software' ? '💿 Software' : '🔧 Hardware'}
+              </div>
+              <div className={`absolute top-2 right-2 border px-2 py-0.5 rounded text-xs font-bold ${condInfo.color}`}>
+                {condInfo.label}
+              </div>
             </div>
           )}
         </div>
@@ -126,8 +150,8 @@ export default function AuctionDetail() {
         <div className="col-span-1 space-y-4">
           <div className="bg-white rounded-lg shadow p-6 space-y-4">
             <div>
-              <p className="text-sm text-gray-600">Status</p>
-              <span className={`inline-block px-3 py-1 rounded-full text-sm font-semibold mt-1 ${
+              <p className="text-xs text-gray-400 font-semibold uppercase">Status</p>
+              <span className={`inline-block px-3 py-0.5 rounded-full text-xs font-semibold mt-1 ${
                 auction.auction_status === 'active'
                   ? 'bg-green-100 text-green-800'
                   : 'bg-gray-100 text-gray-800'
@@ -137,29 +161,29 @@ export default function AuctionDetail() {
             </div>
 
             <div>
-              <p className="text-sm text-gray-600">Kategori</p>
-              <p className="font-semibold text-gray-800 mt-1">{auction.category}</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase">Sub-Kategori</p>
+              <p className="font-semibold text-gray-800 mt-1 uppercase text-sm">{auction.sub_category}</p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600">Harga Mulai</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase">Harga Mulai</p>
               <p className="font-mono font-semibold text-lg text-gray-800 mt-1">
-                {parseFloat(auction.starting_price).toLocaleString('id-ID')} STAKE
+                {parseFloat(auction.starting_price).toLocaleString('id-ID')} LCT
               </p>
             </div>
 
             <div>
-              <p className="text-sm text-gray-600">Harga Tertinggi Saat Ini</p>
+              <p className="text-xs text-gray-400 font-semibold uppercase">Harga Tertinggi Saat Ini</p>
               <p className="font-mono font-semibold text-lg text-gray-800 mt-1">
                 {auction.current_highest_bid 
-                  ? parseFloat(auction.current_highest_bid).toLocaleString('id-ID') 
-                  : '-'} STAKE
+                  ? `${parseFloat(auction.current_highest_bid).toLocaleString('id-ID')} LCT` 
+                  : '-'}
               </p>
             </div>
           </div>
         </div>
 
-        {/* Right Column - Actions */}
+        {/* Right Column - Actions & Time */}
         <div className="col-span-1 space-y-4">
           <div className="bg-white rounded-lg shadow p-6">
             <h3 className="font-semibold text-gray-800 mb-4">Waktu Lelang</h3>
@@ -194,33 +218,53 @@ export default function AuctionDetail() {
               Kembali ke Dashboard
             </button>
           </div>
-
-          {/* Stats */}
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="font-semibold text-gray-800 mb-4">Statistik</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between">
-                <span className="text-gray-600">Total Bid</span>
-                <span className="font-semibold">{auction.total_bids_count}</span>
-              </div>
-              <div className="flex justify-between">
-                <span className="text-gray-600">Peserta</span>
-                <span className="font-semibold">
-                  {auction.highest_bidder_address ? '1+' : '0'}
-                </span>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
 
-      {/* Description */}
-      {auction.description && (
+      {/* Brand & Technical Specifications */}
+      <div className="grid grid-cols-2 gap-6">
         <div className="bg-white rounded-lg shadow p-6">
-          <h3 className="font-semibold text-gray-800 mb-4">Deskripsi</h3>
-          <p className="text-gray-700 whitespace-pre-wrap">{auction.description}</p>
+          <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-1">
+            <span>📊</span> Spesifikasi Teknis
+          </h3>
+          {Object.keys(specs).length === 0 ? (
+            <p className="text-gray-400 text-sm italic">Spesifikasi detail tidak dicantumkan.</p>
+          ) : (
+            <div className="border rounded-lg overflow-hidden">
+              <table className="w-full text-sm text-left">
+                <tbody>
+                  {Object.entries(specs).map(([key, val], idx) => (
+                    <tr key={key} className={idx % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
+                      <td className="px-4 py-2 font-semibold text-gray-500 border-r w-1/3">{key}</td>
+                      <td className="px-4 py-2 text-gray-800 font-medium">{val}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+
+        <div className="bg-white rounded-lg shadow p-6 space-y-4">
+          <h3 className="font-semibold text-gray-800 mb-4 flex items-center gap-1">
+            <span>ℹ️</span> Detail Tambahan
+          </h3>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <span className="text-gray-400 block">Brand / Merek</span>
+              <span className="font-bold text-gray-800 mt-1 block">{auction.brand || 'Tidak ada brand'}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 block">Garansi</span>
+              <span className="font-bold text-gray-800 mt-1 block">{auction.warranty_info || 'Tidak ada garansi'}</span>
+            </div>
+          </div>
+          <div className="border-t pt-3">
+            <span className="text-gray-400 block text-sm">Deskripsi</span>
+            <p className="text-gray-700 whitespace-pre-wrap text-sm mt-1">{auction.description || 'Tidak ada deskripsi.'}</p>
+          </div>
+        </div>
+      </div>
 
       {/* ZKP Proofs */}
       <div className="bg-white rounded-lg shadow p-6">

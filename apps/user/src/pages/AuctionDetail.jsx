@@ -12,6 +12,18 @@ const getImageUrl = (url) => {
   return `http://localhost:3001${cleanUrl}`;
 };
 
+const CATEGORY_MAP = {
+  hardware: { label: 'Hardware', emoji: '🔧' },
+  software: { label: 'Software', emoji: '💿' }
+};
+
+const CONDITION_MAP = {
+  'new': { label: 'Baru / Sealed', color: 'text-emerald-750 bg-emerald-50 border-emerald-200' },
+  'like_new': { label: 'Bekas - Like New', color: 'text-blue-755 bg-blue-50 border-blue-200' },
+  'good': { label: 'Bekas - Baik', color: 'text-yellow-755 bg-yellow-50 border-yellow-200' },
+  'refurbished': { label: 'Refurbished', color: 'text-orange-755 bg-orange-50 border-orange-200' },
+};
+
 export default function AuctionDetail() {
   const { itemId } = useParams()
   const navigate = useNavigate()
@@ -117,15 +129,26 @@ export default function AuctionDetail() {
     )
   }
 
+  // Parse specifications JSON
+  let specs = {};
+  try {
+    specs = auction.specifications ? (typeof auction.specifications === 'string' ? JSON.parse(auction.specifications) : auction.specifications) : {};
+  } catch (e) {
+    console.error('Error parsing specs:', e);
+  }
+
+  const condInfo = CONDITION_MAP[auction.item_condition] || CONDITION_MAP['new'];
+  const catEmoji = auction.main_category === 'software' ? '💿' : '🔧';
+
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
       {/* Header */}
       <div className="flex justify-between items-start border-b border-gray-200 pb-4 mb-2">
         <div className="flex flex-col gap-1">
           <div className="font-label-mono text-[10px] text-primary uppercase tracking-[0.2em] font-semibold">
-            Detail Aset Lelang
+            Detail Aset Lelang IT
           </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-primary uppercase tracking-wider leading-none">
+          <h1 className="text-2xl sm:text-3xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-650 uppercase tracking-wider leading-none">
             {auction.title}
           </h1>
           <p className="text-xs font-mono text-gray-400 mt-1">ID: {auction.item_id}</p>
@@ -163,9 +186,12 @@ export default function AuctionDetail() {
               alt={auction.title}
               className="w-full h-full object-cover"
             />
-            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-600 flex items-center gap-1">
-              <span className="material-symbols-outlined text-[12px] text-primary">sell</span>
-              {auction.category}
+            <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-md border border-gray-200 px-2 py-0.5 rounded text-[10px] text-gray-600 flex items-center gap-1 font-bold">
+              <span>{catEmoji}</span>
+              <span className="uppercase">{auction.main_category}</span>
+            </div>
+            <div className={`absolute top-3 right-3 backdrop-blur-md border px-2 py-0.5 rounded text-[10px] font-semibold ${condInfo.color}`}>
+              {condInfo.label}
             </div>
           </div>
         </div>
@@ -195,7 +221,7 @@ export default function AuctionDetail() {
           <div className="border-t border-gray-100 pt-3">
             <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Harga Dasar</span>
             <span className="text-lg font-extrabold text-gray-800 font-mono block mt-0.5">
-              {parseFloat(auction.starting_price).toLocaleString('id-ID', { minimumFractionDigits: 2 })} STAKE
+              {parseFloat(auction.starting_price).toLocaleString('id-ID', { minimumFractionDigits: 2 })} LCT
             </span>
           </div>
 
@@ -203,7 +229,7 @@ export default function AuctionDetail() {
             <span className="text-[10px] text-gray-400 uppercase tracking-wider block">Penawaran Tertinggi (Terungkap)</span>
             <span className="text-lg font-extrabold text-primary font-mono block mt-0.5">
               {auction.current_highest_bid 
-                ? `${parseFloat(auction.current_highest_bid).toLocaleString('id-ID', { minimumFractionDigits: 2 })} STAKE`
+                ? `${parseFloat(auction.current_highest_bid).toLocaleString('id-ID', { minimumFractionDigits: 2 })} LCT`
                 : 'Belum Terungkap 🔒'}
             </span>
           </div>
@@ -239,14 +265,14 @@ export default function AuctionDetail() {
             {auction.auction_status === 'active' ? (
               <button
                 onClick={() => navigate(`/auctions/${itemId}/bid`)}
-                className="w-full bg-primary text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider hover:bg-secondary active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-lg text-xs uppercase tracking-wider active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm"
               >
                 <span className="material-symbols-outlined text-base">fingerprint</span>
                 Ajukan Penawaran Rahasia (ZKP)
               </button>
             ) : (
               <div className="space-y-2">
-                <p className="text-[10px] text-yellow-600 bg-yellow-50 border border-yellow-200 p-2.5 rounded-lg leading-relaxed">
+                <p className="text-[10px] text-yellow-650 bg-yellow-50 border border-yellow-200 p-2.5 rounded-lg leading-relaxed">
                   Lelang telah ditutup. Silakan lakukan Reveal Bid (membuka penawaran Anda), klaim jika menang, atau tarik jaminan kembali.
                 </p>
                 <button
@@ -261,7 +287,7 @@ export default function AuctionDetail() {
                   <button
                     onClick={handleClaimWin}
                     disabled={actionLoading}
-                    className="bg-primary text-white font-bold py-2.5 rounded-lg text-[10px] uppercase tracking-wider hover:bg-secondary active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed"
+                    className="bg-blue-600 text-white font-bold py-2.5 rounded-lg text-[10px] uppercase tracking-wider hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-1 cursor-pointer disabled:opacity-55 disabled:cursor-not-allowed"
                   >
                     <span className="material-symbols-outlined text-sm">workspace_premium</span>
                     Klaim Barang
@@ -281,13 +307,56 @@ export default function AuctionDetail() {
         </div>
       </div>
 
-      {/* Description Section */}
-      {auction.description && (
+      {/* Brand & Technical Specifications Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Specs */}
         <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">
-          <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-2 mb-3">Deskripsi Aset</h3>
-          <p className="text-gray-600 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap">{auction.description}</p>
+          <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-2 mb-3 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-sm text-blue-600">tune</span>
+            Spesifikasi Teknis
+          </h3>
+          {Object.keys(specs).length === 0 ? (
+            <p className="text-gray-400 text-xs italic py-2">Spesifikasi teknis detail tidak tersedia.</p>
+          ) : (
+            <div className="overflow-hidden border border-gray-100 rounded-lg">
+              <table className="w-full text-xs text-left">
+                <tbody>
+                  {Object.entries(specs).map(([key, val], idx) => (
+                    <tr key={key} className={idx % 2 === 0 ? 'bg-slate-50' : 'bg-white'}>
+                      <td className="px-4 py-2.5 font-semibold text-gray-500 border-r border-gray-100 w-1/3">{key}</td>
+                      <td className="px-4 py-2.5 text-gray-800 font-medium">{val}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
-      )}
+
+        {/* Brand, Description & Warranty */}
+        <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm space-y-4">
+          <h3 className="text-xs font-bold text-gray-800 uppercase tracking-wider border-b border-gray-100 pb-2 flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-sm text-blue-600">info</span>
+            Detail Tambahan
+          </h3>
+          
+          <div className="grid grid-cols-2 gap-4 text-xs">
+            <div>
+              <span className="text-gray-400 block font-semibold">Merek/Brand</span>
+              <span className="text-gray-800 font-bold mt-1 block bg-gray-50 px-2.5 py-1 rounded border border-gray-100 w-fit">{auction.brand || 'Tidak ada brand'}</span>
+            </div>
+            <div>
+              <span className="text-gray-400 block font-semibold">Garansi</span>
+              <span className="text-gray-800 font-bold mt-1 block bg-gray-50 px-2.5 py-1 rounded border border-gray-100 w-fit">{auction.warranty_info || 'Tidak ada garansi'}</span>
+            </div>
+          </div>
+
+          <div>
+            <span className="text-gray-400 block text-xs font-semibold mb-1">Deskripsi</span>
+            <p className="text-gray-600 text-xs leading-relaxed whitespace-pre-wrap bg-slate-50/50 p-3 rounded-lg border border-gray-100/50">{auction.description || 'Tidak ada deskripsi.'}</p>
+          </div>
+        </div>
+      </div>
 
       {/* ZKP Proofs Backup Trail */}
       <div className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm">

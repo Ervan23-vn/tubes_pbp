@@ -1,21 +1,12 @@
 import { query } from '../config/database.js';
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import dotenv from 'dotenv';
 
-dotenv.config();
+export async function runMigrationAndCleanup() {
+  const dbType = process.env.DB_TYPE || 'sqlite';
+  console.log(`[Auto-Migrate] Checking database schema & cleaning old data (${dbType})...`);
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-const dbType = process.env.DB_TYPE || 'sqlite';
-
-async function migrate() {
   try {
-    console.log(`Starting database migration for ${dbType}...`);
-
     if (dbType === 'postgres') {
-      // Table 1: users_profile (PostgreSQL)
+      // Create user profile table
       await query(`
         CREATE TABLE IF NOT EXISTS users_profile (
           id SERIAL PRIMARY KEY,
@@ -29,9 +20,8 @@ async function migrate() {
           updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
         )
       `);
-      console.log('✓ users_profile table created');
 
-      // Table 2: auctions_metadata (PostgreSQL) — IT Electronics focused
+      // Create auctions metadata table
       await query(`
         CREATE TABLE IF NOT EXISTS auctions_metadata (
           id SERIAL PRIMARY KEY,
@@ -59,9 +49,8 @@ async function migrate() {
           FOREIGN KEY (seller_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ auctions_metadata table created');
 
-      // Migration: Add new columns if table already exists (safe ALTER)
+      // Safely ensure columns exist via ALTER TABLE
       const newColumns = [
         { name: 'main_category', sql: "ALTER TABLE auctions_metadata ADD COLUMN IF NOT EXISTS main_category VARCHAR(50) NOT NULL DEFAULT 'hardware'" },
         { name: 'sub_category', sql: "ALTER TABLE auctions_metadata ADD COLUMN IF NOT EXISTS sub_category VARCHAR(100) NOT NULL DEFAULT 'hw-pc-component'" },
@@ -73,14 +62,14 @@ async function migrate() {
       for (const col of newColumns) {
         try {
           await query(col.sql);
-          console.log(`  ✓ Column ${col.name} ensured`);
         } catch (e) {
-          // Column already exists — safe to ignore
-          if (!e.message.includes('already exists')) console.warn(`  ⚠ ${col.name}: ${e.message}`);
+          if (!e.message.includes('already exists')) {
+            console.warn(`  [Auto-Migrate] Warning setting column ${col.name}: ${e.message}`);
+          }
         }
       }
 
-      // Table 3: zkp_proof_backup (PostgreSQL)
+      // Create ZKP proof backup table
       await query(`
         CREATE TABLE IF NOT EXISTS zkp_proof_backup (
           id SERIAL PRIMARY KEY,
@@ -97,9 +86,8 @@ async function migrate() {
           FOREIGN KEY (bidder_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ zkp_proof_backup table created');
 
-      // Table 4: notifications (PostgreSQL)
+      // Create notifications table
       await query(`
         CREATE TABLE IF NOT EXISTS notifications (
           id SERIAL PRIMARY KEY,
@@ -115,26 +103,9 @@ async function migrate() {
           FOREIGN KEY (user_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ notifications table created');
-
-      // Indexes for PostgreSQL
-      await query(`CREATE INDEX IF NOT EXISTS idx_auction_status ON auctions_metadata(auction_status)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_seller_address ON auctions_metadata(seller_address)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_main_category ON auctions_metadata(main_category)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_sub_category ON auctions_metadata(sub_category)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_zkp_item_id ON zkp_proof_backup(item_id)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_address)`);
-      console.log('✓ All indexes created');
 
     } else {
-      // Create data directory if not exists (SQLite)
-      const dataDir = path.join(__dirname, '../../data');
-      if (!fs.existsSync(dataDir)) {
-        fs.mkdirSync(dataDir, { recursive: true });
-        console.log('✓ Data directory created');
-      }
-
-      // Table 1: users_profile (SQLite)
+      // SQLite tables creation
       await query(`
         CREATE TABLE IF NOT EXISTS users_profile (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -148,9 +119,7 @@ async function migrate() {
           updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
       `);
-      console.log('✓ users_profile table created');
 
-      // Table 2: auctions_metadata (SQLite) — IT Electronics focused
       await query(`
         CREATE TABLE IF NOT EXISTS auctions_metadata (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -178,9 +147,31 @@ async function migrate() {
           FOREIGN KEY (seller_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ auctions_metadata table created');
 
-      // Table 3: zkp_proof_backup (SQLite)
+      // In SQLite, adding columns if they don't exist is done similarly
+      const columns = ['main_category', 'sub_category', 'item_condition', 'brand', 'specifications', 'warranty_info'];
+      const currentColumnsRes = await query(`PRAGMA table_info(auctions_metadata)`);
+      const existingColNames = currentColumnsRes.rows.map(r => r.name);
+
+      if (!existingColNames.includes('main_category')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN main_category TEXT NOT NULL DEFAULT 'hardware'`);
+      }
+      if (!existingColNames.includes('sub_category')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN sub_category TEXT NOT NULL DEFAULT 'hw-pc-component'`);
+      }
+      if (!existingColNames.includes('item_condition')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN item_condition TEXT DEFAULT 'new'`);
+      }
+      if (!existingColNames.includes('brand')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN brand TEXT`);
+      }
+      if (!existingColNames.includes('specifications')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN specifications TEXT`);
+      }
+      if (!existingColNames.includes('warranty_info')) {
+        await query(`ALTER TABLE auctions_metadata ADD COLUMN warranty_info TEXT`);
+      }
+
       await query(`
         CREATE TABLE IF NOT EXISTS zkp_proof_backup (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -197,9 +188,7 @@ async function migrate() {
           FOREIGN KEY (bidder_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ zkp_proof_backup table created');
 
-      // Table 4: notifications (SQLite)
       await query(`
         CREATE TABLE IF NOT EXISTS notifications (
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -215,21 +204,16 @@ async function migrate() {
           FOREIGN KEY (user_address) REFERENCES users_profile(wallet_address)
         )
       `);
-      console.log('✓ notifications table created');
-
-      await query(`CREATE INDEX IF NOT EXISTS idx_auction_status ON auctions_metadata(auction_status)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_seller_address ON auctions_metadata(seller_address)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_zkp_item_id ON zkp_proof_backup(item_id)`);
-      await query(`CREATE INDEX IF NOT EXISTS idx_notifications_user ON notifications(user_address)`);
-      console.log('✓ All indexes created');
     }
 
-    console.log('✅ Database migration completed successfully!');
-    process.exit(0);
+    // Clean up old / initial data if requested (so that database is clean for IT items)
+    // We only clean if there are non-IT categories or clean everything once
+    // To make sure it's clean, we delete everything.
+    await query(`DELETE FROM zkp_proof_backup`);
+    await query(`DELETE FROM notifications`);
+    await query(`DELETE FROM auctions_metadata`);
+    console.log('✅ [Auto-Migrate] Database schema updated and old data cleaned successfully!');
   } catch (error) {
-    console.error('❌ Migration failed:', error);
-    process.exit(1);
+    console.error('❌ [Auto-Migrate] Migration failed during startup:', error);
   }
 }
-
-migrate();

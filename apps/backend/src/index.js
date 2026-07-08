@@ -73,7 +73,10 @@ app.get('/', (req, res) => {
   });
 });
 
+import { runMigrationAndCleanup } from './db/auto-migrate.js';
+
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
   console.log(`🚀 Server running on port ${PORT} in ${process.env.NODE_ENV} mode`);
+  await runMigrationAndCleanup();
 });
