@@ -44,18 +44,18 @@ const LELANG_CHAIN_INFO = {
     bech32PrefixConsPub: 'cosmosvalconspub',
   },
   currencies: [
-    { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+    { coinDenom: 'LCT', coinMinimalDenom: 'ulct', coinDecimals: 6 },
     { coinDenom: 'TOKEN', coinMinimalDenom: 'token', coinDecimals: 6 },
   ],
   feeCurrencies: [
     {
-      coinDenom: 'STAKE',
-      coinMinimalDenom: 'stake',
+      coinDenom: 'LCT',
+      coinMinimalDenom: 'ulct',
       coinDecimals: 6,
       gasPriceStep: { low: 0.01, average: 0.025, high: 0.04 },
     },
   ],
-  stakeCurrency: { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+  stakeCurrency: { coinDenom: 'LCT', coinMinimalDenom: 'ulct', coinDecimals: 6 },
 }
 
 /**
@@ -233,7 +233,7 @@ export async function getWalletBalance(address) {
     const restUrl = LELANG_CHAIN_INFO.rest
     const response = await axios.get(`${restUrl}/cosmos/bank/v1beta1/balances/${address}`)
     if (response.data && Array.isArray(response.data.balances)) {
-      const stakeBal = response.data.balances.find(b => b.denom === 'stake')
+      const stakeBal = response.data.balances.find(b => b.denom === 'ulct')
       if (stakeBal) {
         // Divide by 10^6 because decimals is 6
         return parseFloat(stakeBal.amount) / 1000000

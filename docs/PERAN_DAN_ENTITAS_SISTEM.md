@@ -98,6 +98,29 @@ Proyek ini menggunakan **4 node** yang semuanya berjalan di komputer lokal:
 ✅ Node = Server infrastruktur yang menjalankan jaringan blockchain
 ```
 
+### 3.6 Pembahasan Kasus: Status Offline & Klasifikasi Node
+
+#### A. Mengapa Status 4 Node Tampil "Offline" pada Dashboard Admin?
+Tampilan status **Offline** pada halaman Monitoring Jaringan (`NetworkMonitoring.jsx`) di Dashboard Admin bukan merupakan simulasi palsu atau error coding. Halaman tersebut bekerja secara real-time dengan mengirimkan sinyal HTTP `fetch` ke port RPC lokal masing-masing node (`26657`, `26668`, `26679`, `26690`).
+*   **Penyebab Offline:** Karena Anda belum menyalakan/menjalankan aplikasi blockchain Cosmos (`lelangd`) secara lokal di terminal WSL Anda, port-port tersebut tertutup dan terbaca offline.
+*   **Cara Mengaktifkan:** Begitu Anda mengaktifkan node-node tersebut melalui skrip inisialisasi (`./scripts/setup-local-nodes.sh`), status pada dashboard monitoring admin akan secara otomatis mendeteksi koneksi dan berubah menjadi **Online** beserta info latency dan tinggi blok (*block height*) riil.
+
+#### B. Apakah Ada "Node User" atau "Node Admin"?
+**Tidak ada.** Dalam arsitektur aplikasi terdesentralisasi (dApp):
+*   **User (Pembeli)** dan **Admin (Penjual)** bertindak sebagai **Client (Klien)**. Mereka tidak perlu menjalankan aplikasi node blockchain di komputer mereka untuk bertransaksi.
+*   Mereka berinteraksi dengan sistem menggunakan peramban web (React frontend) dan ekstensi **Keplr Wallet** sebagai alat penandatangan digital transaksi.
+*   Aplikasi web klien ini hanya menumpang koneksi (mengirim request transaksi) ke salah satu **Node Konsensus** yang aktif di jaringan (misalnya Node 1 di port `26657`).
+*   *Analogi:* Ini seperti aplikasi mobile banking di HP Anda. HP Anda adalah **Client**, sedangkan server bank yang memproses transaksi dan mencatat pembukuan adalah **Node Konsensus**. HP Anda tidak menyimpan database saldo nasabah lain dan HP Anda bukan kantor cabang bank.
+
+#### C. Bagaimana Cara Komputer Lain Bergabung Menjadi Node Baru?
+Jika ada komputer lain (seperti komputer rekan tim Anda) yang ingin bergabung menjadi node baru di dalam jaringan `lelang-testnet` ini, langkah-langkahnya adalah:
+1.  **Instalasi Daemon:** Kompilasi source code blockchain untuk menghasilkan binary `lelangd`.
+2.  **Inisialisasi Konfigurasi:** Jalankan perintah `lelangd init <nama_node> --chain-id lelang-testnet`.
+3.  **Sinkronisasi Genesis:** Salin berkas `genesis.json` asli milik jaringan Anda ke direktori node baru tersebut.
+4.  **Mendaftarkan Peers:** Masukkan alamat IP P2P dari node Anda (contoh: Node 1) ke bagian `persistent_peers` di berkas `config.toml` node baru agar mereka dapat saling menemukan dan bertukar data.
+5.  **Jalankan Node:** Eksekusi `lelangd start` untuk mulai menyinkronkan blok.
+6.  **Menjadi Validator:** Jika ingin ikut serta memproses konsensus/voting, node baru tersebut harus mengirimkan transaksi pembuatan validator (`MsgCreateValidator`) dengan melakukan *staking* koin native `ulct`.
+
 ---
 
 ## 4. Validator

@@ -97,8 +97,8 @@ export default function Login({ onSuccess }) {
       <div className="bg-white rounded-lg shadow-xl p-8 max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-gray-800 mb-2">Lelang Blockchain</h1>
-          <p className="text-gray-600">Admin Seller Center</p>
-          <p className="text-sm text-gray-500 mt-2">TAHAP G - Frontend Admin</p>
+          <p className="text-gray-600">Admin</p>
+        
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">

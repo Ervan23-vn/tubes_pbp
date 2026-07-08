@@ -19,10 +19,10 @@ export const getKeplr = () => {
 };
 
 const LELANG_CHAIN_INFO = {
-  chainId: 'lelang-testnet',
+  chainId: 'lelangchain',
   chainName: 'Lelang Blockchain Testnet',
-  rpc: 'http://localhost:26657',
-  rest: 'http://localhost:1317',
+  rpc: 'http://localhost:26607',
+  rest: 'http://localhost:1307',
   bip44: { coinType: 118 },
   bech32Config: {
     bech32PrefixAccAddr: 'cosmos',
@@ -33,18 +33,18 @@ const LELANG_CHAIN_INFO = {
     bech32PrefixConsPub: 'cosmosvalconspub',
   },
   currencies: [
-    { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+    { coinDenom: 'LCT', coinMinimalDenom: 'ulct', coinDecimals: 6 },
     { coinDenom: 'TOKEN', coinMinimalDenom: 'token', coinDecimals: 6 },
   ],
   feeCurrencies: [
     {
-      coinDenom: 'STAKE',
-      coinMinimalDenom: 'stake',
+      coinDenom: 'LCT',
+      coinMinimalDenom: 'ulct',
       coinDecimals: 6,
       gasPriceStep: { low: 0.01, average: 0.025, high: 0.04 },
     },
   ],
-  stakeCurrency: { coinDenom: 'STAKE', coinMinimalDenom: 'stake', coinDecimals: 6 },
+  stakeCurrency: { coinDenom: 'LCT', coinMinimalDenom: 'ulct', coinDecimals: 6 },
 };
 
 export const connectKeplrWallet = async () => {
@@ -60,8 +60,8 @@ export const connectKeplrWallet = async () => {
   const keplr = getKeplr();
   try {
     await keplr.experimentalSuggestChain(LELANG_CHAIN_INFO);
-    await keplr.enable('lelang-testnet');
-    const key = await keplr.getKey('lelang-testnet');
+    await keplr.enable('lelangchain');
+    const key = await keplr.getKey('lelangchain');
     return {
       address: key.bech32Address,
       pubKey: key.pubKey,
@@ -109,7 +109,7 @@ export const signMessageWithKeplr = async (message, address) => {
     };
 
     const result = await keplr.signAmino(
-      'lelang-testnet',
+      'lelangchain',
       address,
       signDoc,
       {

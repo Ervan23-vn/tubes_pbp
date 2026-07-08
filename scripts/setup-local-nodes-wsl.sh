@@ -66,12 +66,14 @@ for i in 0 1 2 3; do
   sed -i "s|addr_book_strict = true|addr_book_strict = false|g" "$CONFIG_PATH"
   sed -i "s|allow_duplicate_ip = false|allow_duplicate_ip = true|g" "$CONFIG_PATH"
   sed -i "s|timeout_commit = \"5s\"|timeout_commit = \"1s\"|g" "$CONFIG_PATH"
+  sed -i 's|cors_allowed_origins = \[\]|cors_allowed_origins = \["*"\]|g' "$CONFIG_PATH"
 
   if [ -f "$APP_PATH" ]; then
     sed -i "s|address = \"tcp://localhost:1317\"|address = \"tcp://localhost:13${i}7\"|g" "$APP_PATH" || true
     sed -i "s|address = \"localhost:9090\"|address = \"localhost:91${i}0\"|g" "$APP_PATH" || true
     sed -i "s|address = \"localhost:9091\"|address = \"localhost:91${i}1\"|g" "$APP_PATH" || true
     sed -i "/\[api\]/,/enable/ s/enable = false/enable = true/" "$APP_PATH" || true
+    sed -i 's|enabled-unsafe-cors = false|enabled-unsafe-cors = true|g' "$APP_PATH" || true
     sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0ulct"|g' "$APP_PATH" || true
   fi
 done

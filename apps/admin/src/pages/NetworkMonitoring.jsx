@@ -8,10 +8,10 @@ import { Wifi, WifiOff, RefreshCw } from 'lucide-react';
  */
 
 const NODES = [
-  { id: 1, name: 'Node 1', rpcUrl: 'http://localhost:26657', port: 26657 },
-  { id: 2, name: 'Node 2', rpcUrl: 'http://localhost:26668', port: 26668 },
-  { id: 3, name: 'Node 3', rpcUrl: 'http://localhost:26679', port: 26679 },
-  { id: 4, name: 'Node 4', rpcUrl: 'http://localhost:26690', port: 26690 },
+  { id: 1, name: 'Node 1 (PenyelenggaraLelang)', rpcUrl: 'http://localhost:26607', port: 26607 },
+  { id: 2, name: 'Node 2 (AuditorIndependen)', rpcUrl: 'http://localhost:26617', port: 26617 },
+  { id: 3, name: 'Node 3 (BankEscrow)', rpcUrl: 'http://localhost:26627', port: 26627 },
+  { id: 4, name: 'Node 4 (RegulatorPengawas)', rpcUrl: 'http://localhost:26637', port: 26637 },
 ];
 
 export default function NetworkMonitoring() {

@@ -92,7 +92,7 @@ laddr = "tcp://127.0.0.1:26607"
 # A list of origins a cross-domain request can be executed from
 # Default value '[]' disables cors support
 # Use '["*"]' to allow any origin
-cors_allowed_origins = []
+cors_allowed_origins = ["*"]
 
 # A list of methods the client is allowed to use with cross-domain requests
 cors_allowed_methods = ["HEAD", "GET", "POST", ]
@@ -214,7 +214,7 @@ external_address = ""
 seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "75cd6850fb0f85479c85e3bac5e84f0963013236@127.0.0.1:26606,acc96fc24206d4613f14ffcfff71dbb161da2368@127.0.0.1:26616,e85ea5a5297fde3c68b116626ef53e462c6b7041@127.0.0.1:26626,ef2c33e72bae546a0d77b2210310e6b5a7ebc71e@127.0.0.1:26636"
+persistent_peers = "43d13e03e56f074445692718466c58bc40c989ab@127.0.0.1:26606,e28b5afbdbf009afb1120111c327d311c9c0cfd3@127.0.0.1:26616,fb8f707df83c91655bdccfd60d08ac59d61416d7@127.0.0.1:26626,efb0b2f0d71483d749897e87efa07a00f56ca4ca@127.0.0.1:26636"
 
 # Path to address book
 addr_book_file = "config/addrbook.json"

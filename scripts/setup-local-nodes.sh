@@ -89,6 +89,7 @@ for i in {0..3}; do
     sed -i "s|persistent_peers = \".*\"|persistent_peers = \"$peers\"|g" "$CONFIG_PATH"
     sed -i "s|addr_book_strict = true|addr_book_strict = false|g" "$CONFIG_PATH"
     sed -i "s|allow_duplicate_ip = false|allow_duplicate_ip = true|g" "$CONFIG_PATH"
+    sed -i 's|cors_allowed_origins = \[\]|cors_allowed_origins = \["*"\]|g' "$CONFIG_PATH"
 
     # Consensus parameters (timeouts)
     sed -i 's|timeout_propose = ".*"|timeout_propose = "3s"|g' "$CONFIG_PATH"
@@ -102,8 +103,9 @@ for i in {0..3}; do
     sed -i "s|address = \"localhost:9091\"|address = \"localhost:91${i}1\"|g" "$APP_PATH"
     sed -i 's|minimum-gas-prices = .*|minimum-gas-prices = "0ulct"|g' "$APP_PATH"
     
-    # Enable API
+    # Enable API and CORS
     sed -i '/\[api\]/,/enable/ s/enable = false/enable = true/' "$APP_PATH"
+    sed -i 's|enabled-unsafe-cors = false|enabled-unsafe-cors = true|g' "$APP_PATH"
 done
 
 echo "=== Starting 4 Nodes in background ==="
