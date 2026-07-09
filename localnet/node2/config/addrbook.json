@@ -1,63 +1,63 @@
 {
-	"key": "a72a88320b024563455919f5",
+	"key": "fbb2948fe43b89b126b6e2bf",
 	"addrs": [
 		{
 			"addr": {
-				"id": "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5",
+				"id": "0b5d443978e9e3e014961a106365e19b00a0ed3a",
 				"ip": "127.0.0.1",
 				"port": 26606
 			},
 			"src": {
-				"id": "2a130420d743edc2a767320e8e1ca12186a097fb",
+				"id": "603503812669191e700a6e3de2ab03bb1397a923",
 				"ip": "0.0.0.0",
 				"port": 26626
 			},
 			"buckets": [
-				199
+				11
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-09T12:09:21.462057605+07:00",
+			"last_attempt": "2026-07-09T14:40:35.568341079+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "bad58c3374c5b6df2828238d086e2bb7a4e24c63",
+				"id": "9f5edc1d18230a1997d1c93bea730ad44747cc8c",
 				"ip": "127.0.0.1",
 				"port": 26616
 			},
 			"src": {
-				"id": "2a130420d743edc2a767320e8e1ca12186a097fb",
+				"id": "603503812669191e700a6e3de2ab03bb1397a923",
 				"ip": "0.0.0.0",
 				"port": 26626
 			},
 			"buckets": [
-				199
+				11
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-09T12:09:21.462105612+07:00",
+			"last_attempt": "2026-07-09T14:40:35.568355119+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "3b3545bc7d9117f428faad4c80bfac0911462b07",
+				"id": "7de6219c2d021bdfb80bdad7430c8b8d2e39d69f",
 				"ip": "127.0.0.1",
 				"port": 26636
 			},
 			"src": {
-				"id": "2a130420d743edc2a767320e8e1ca12186a097fb",
+				"id": "603503812669191e700a6e3de2ab03bb1397a923",
 				"ip": "0.0.0.0",
 				"port": 26626
 			},
 			"buckets": [
-				199
+				11
 			],
-			"attempts": 0,
+			"attempts": 1,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-09T12:09:21.462116351+07:00",
+			"last_attempt": "2026-07-09T14:40:35.582985684+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		}
