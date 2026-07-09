@@ -1,63 +1,63 @@
 {
-	"key": "8a2d2d2685b202620295ca8c",
+	"key": "7bbf1ad7b9f417e95bf50399",
 	"addrs": [
 		{
 			"addr": {
-				"id": "43d13e03e56f074445692718466c58bc40c989ab",
+				"id": "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5",
 				"ip": "127.0.0.1",
 				"port": 26606
 			},
 			"src": {
-				"id": "efb0b2f0d71483d749897e87efa07a00f56ca4ca",
+				"id": "3b3545bc7d9117f428faad4c80bfac0911462b07",
 				"ip": "0.0.0.0",
 				"port": 26636
 			},
 			"buckets": [
-				141
+				137
 			],
-			"attempts": 1,
+			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.080718907+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462090207+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "e28b5afbdbf009afb1120111c327d311c9c0cfd3",
+				"id": "bad58c3374c5b6df2828238d086e2bb7a4e24c63",
 				"ip": "127.0.0.1",
 				"port": 26616
 			},
 			"src": {
-				"id": "efb0b2f0d71483d749897e87efa07a00f56ca4ca",
+				"id": "3b3545bc7d9117f428faad4c80bfac0911462b07",
 				"ip": "0.0.0.0",
 				"port": 26636
 			},
 			"buckets": [
-				141
+				137
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.06072366+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462109035+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "fb8f707df83c91655bdccfd60d08ac59d61416d7",
+				"id": "2a130420d743edc2a767320e8e1ca12186a097fb",
 				"ip": "127.0.0.1",
 				"port": 26626
 			},
 			"src": {
-				"id": "efb0b2f0d71483d749897e87efa07a00f56ca4ca",
+				"id": "3b3545bc7d9117f428faad4c80bfac0911462b07",
 				"ip": "0.0.0.0",
 				"port": 26636
 			},
 			"buckets": [
-				141
+				137
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.060727519+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462114779+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		}

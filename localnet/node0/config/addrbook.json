@@ -1,63 +1,63 @@
 {
-	"key": "6f415d9379e24fd69d9612b0",
+	"key": "a7a7e756a0d2a11e58a1b9c6",
 	"addrs": [
 		{
 			"addr": {
-				"id": "e28b5afbdbf009afb1120111c327d311c9c0cfd3",
+				"id": "bad58c3374c5b6df2828238d086e2bb7a4e24c63",
 				"ip": "127.0.0.1",
 				"port": 26616
 			},
 			"src": {
-				"id": "43d13e03e56f074445692718466c58bc40c989ab",
+				"id": "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5",
 				"ip": "0.0.0.0",
 				"port": 26606
 			},
 			"buckets": [
-				96
+				133
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.060691486+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462168416+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "fb8f707df83c91655bdccfd60d08ac59d61416d7",
+				"id": "2a130420d743edc2a767320e8e1ca12186a097fb",
 				"ip": "127.0.0.1",
 				"port": 26626
 			},
 			"src": {
-				"id": "43d13e03e56f074445692718466c58bc40c989ab",
+				"id": "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5",
 				"ip": "0.0.0.0",
 				"port": 26606
 			},
 			"buckets": [
-				96
+				133
 			],
-			"attempts": 1,
+			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.08175074+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462192582+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		},
 		{
 			"addr": {
-				"id": "efb0b2f0d71483d749897e87efa07a00f56ca4ca",
+				"id": "3b3545bc7d9117f428faad4c80bfac0911462b07",
 				"ip": "127.0.0.1",
 				"port": 26636
 			},
 			"src": {
-				"id": "43d13e03e56f074445692718466c58bc40c989ab",
+				"id": "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5",
 				"ip": "0.0.0.0",
 				"port": 26606
 			},
 			"buckets": [
-				96
+				133
 			],
 			"attempts": 0,
 			"bucket_type": 1,
-			"last_attempt": "2026-07-08T15:01:22.060704056+07:00",
+			"last_attempt": "2026-07-09T12:09:21.462278903+07:00",
 			"last_success": "0001-01-01T00:00:00Z",
 			"last_ban_time": "0001-01-01T00:00:00Z"
 		}

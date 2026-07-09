@@ -214,7 +214,7 @@ external_address = ""
 seeds = ""
 
 # Comma separated list of nodes to keep persistent connections to
-persistent_peers = "43d13e03e56f074445692718466c58bc40c989ab@127.0.0.1:26606,e28b5afbdbf009afb1120111c327d311c9c0cfd3@127.0.0.1:26616,fb8f707df83c91655bdccfd60d08ac59d61416d7@127.0.0.1:26626,efb0b2f0d71483d749897e87efa07a00f56ca4ca@127.0.0.1:26636"
+persistent_peers = "52b2e1de4a4c6a7698c02e10fe6b64aff43940b5@127.0.0.1:26606,bad58c3374c5b6df2828238d086e2bb7a4e24c63@127.0.0.1:26616,2a130420d743edc2a767320e8e1ca12186a097fb@127.0.0.1:26626,3b3545bc7d9117f428faad4c80bfac0911462b07@127.0.0.1:26636"
 
 # Path to address book
 addr_book_file = "config/addrbook.json"
